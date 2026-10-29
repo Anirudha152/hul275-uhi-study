@@ -1,0 +1,1550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tropical UHI Review</title>
+<style>
+:root{
+  --bg:#f7f6f2; --surface:#ffffff; --ink:#1d1d1b; --muted:#6b6a65; --line:#e4e2db;
+  --accent:#1f6f5c; --accent-soft:#e3f0ec; --warn:#9a5b00; --warn-soft:#fbf0dc;
+  --bad:#a33a2c; --bad-soft:#f8e4e0; --bar:#1f6f5c; --bar2:#c0703a;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#151614; --surface:#1e201d; --ink:#ecebe6; --muted:#a3a29b; --line:#33352f;
+    --accent:#5fc2a6; --accent-soft:#1d3530; --warn:#e8b25c; --warn-soft:#3a2f1c;
+    --bad:#ef8a7b; --bad-soft:#3b2421; --bar:#5fc2a6; --bar2:#e09a63;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#151614; --surface:#1e201d; --ink:#ecebe6; --muted:#a3a29b; --line:#33352f;
+  --accent:#5fc2a6; --accent-soft:#1d3530; --warn:#e8b25c; --warn-soft:#3a2f1c;
+  --bad:#ef8a7b; --bad-soft:#3b2421; --bar:#5fc2a6; --bar2:#e09a63;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.app{display:grid;grid-template-columns:270px minmax(0,1fr);min-height:100vh}
+nav{border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;overflow:auto;background:var(--surface)}
+nav h1{font-size:15px;margin:0 6px 4px;letter-spacing:.02em}
+nav .sub{font-size:12.5px;color:var(--muted);margin:0 6px 16px}
+nav button{display:flex;gap:10px;align-items:baseline;width:100%;text-align:left;background:none;border:0;color:var(--ink);font:inherit;font-size:14px;padding:8px 8px;border-radius:8px;cursor:pointer;line-height:1.35}
+nav button:hover{background:var(--bg)}
+nav button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+nav button .n{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px;min-width:16px}
+nav button.on .n{color:var(--accent)}
+nav button .c{margin-left:auto;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+main{display:flex;flex-direction:column;min-width:0}
+.top{display:flex;align-items:center;gap:12px;padding:14px 28px;border-bottom:1px solid var(--line)}
+.top .mod{font-size:13px;color:var(--muted);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .count{flex-shrink:0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.menu{display:none;background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer}
+.theme{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:5px 10px;font:inherit;font-size:13px;cursor:pointer}
+.progress{height:3px;background:var(--line)}
+.progress div{height:100%;background:var(--accent);transition:width .25s}
+.stage{flex:1;padding:36px 28px 24px;display:flex;justify-content:center}
+.card{width:100%;max-width:720px;min-width:0}
+.card h2{font-size:28px;line-height:1.25;margin:0 0 18px;letter-spacing:-.01em}
+.card h3{font-size:17px;margin:20px 0 8px}
+.card p{margin:0 0 14px}
+.card ul,.card ol{margin:0 0 14px;padding-left:22px}
+.card li{margin:4px 0}
+.card li::marker{color:var(--muted)}
+.card b{font-weight:650}
+.key{background:var(--accent-soft);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.key::before{content:"Remember";display:block;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+.tip{background:var(--warn-soft);border-left:3px solid var(--warn);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.tip::before{content:"Exam tip";display:block;font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--warn);margin-bottom:2px}
+table{border-collapse:collapse;width:100%;margin:6px 0 16px;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+td.r,th.r{text-align:right;font-variant-numeric:tabular-nums}
+tr.hl td{background:var(--accent-soft)}
+.tw{overflow-x:auto}
+.eq{font-family:"SF Mono",Menlo,Consolas,monospace;font-size:16px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 16px;margin:10px 0 16px;overflow-x:auto;white-space:nowrap}
+.bars{margin:8px 0 18px}
+.bars .row{display:grid;grid-template-columns:130px 1fr 52px;gap:10px;align-items:center;margin:6px 0;font-size:14px}
+.bars .lab{color:var(--muted)}
+.bars .track{height:14px;background:var(--line);border-radius:3px;overflow:hidden}
+.bars .fill{height:100%;background:var(--bar);border-radius:3px}
+.bars .fill.b2{background:var(--bar2)}
+.bars .val{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:8px 0 16px}
+.vs>div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.vs h3{font-size:14px;margin:0 0 6px;color:var(--accent)}
+.vs ul{margin:0;padding-left:18px;font-size:15.5px}
+.vs p{font-size:15.5px;margin:0}
+figure{margin:12px 0 18px}
+figure img{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px}
+figcaption{font-size:14px;color:var(--muted);margin-top:8px}
+.mcq{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 14px}
+.mcq .qq{font-weight:600;margin:0 0 10px}
+.mcq .qq span{color:var(--muted);font-variant-numeric:tabular-nums;margin-right:4px}
+.opts{display:grid;gap:8px}
+.opts button{text-align:left;font:inherit;font-size:15.5px;line-height:1.4;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer}
+.opts button:hover{border-color:var(--accent)}
+.mcq.done .opts button{cursor:default}
+.mcq.done .opts button:hover{border-color:var(--line)}
+.opts button.right,.mcq.done .opts button.right:hover{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.opts button.wrong,.mcq.done .opts button.wrong:hover{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.why{display:none;font-size:14.5px;color:var(--muted);margin:10px 0 0}
+.mcq.done .why{display:block}
+.score{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 16px;border:1px dashed var(--line);border-radius:10px;font-size:15px;color:var(--muted)}
+.score b{color:var(--ink)}
+.score button{font:inherit;font-size:14px;padding:6px 14px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.controls{display:flex;justify-content:space-between;gap:12px;padding:18px 28px 28px;max-width:776px;width:100%;margin:0 auto}
+.controls button{font:inherit;font-size:15px;padding:11px 22px;border-radius:10px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.controls button.next{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+.controls button:disabled{opacity:.35;cursor:default}
+.hint{font-size:12px;color:var(--muted);text-align:center;padding-bottom:16px}
+@media (max-width:860px){
+  body{font-size:16px}
+  .app{grid-template-columns:minmax(0,1fr)}
+  nav{position:fixed;inset:0 auto 0 0;width:84%;max-width:320px;z-index:5;transform:translateX(-102%);transition:transform .2s;box-shadow:0 0 40px rgba(0,0,0,.2)}
+  nav.open{transform:none}
+  .menu{display:inline-block}
+  .top{padding:12px 16px}
+  .stage{padding:24px 16px 12px}
+  .card h2{font-size:23px}
+  .controls{padding:14px 16px 22px}
+  .vs{grid-template-columns:1fr}
+  .bars .row{grid-template-columns:96px 1fr 46px}
+  .hint{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav id="nav"><h1>Urban Heat Islands in the Tropics</h1><p class="sub">Lefevre et al. (2025) · review</p><div id="navlist"></div></nav>
+  <main>
+    <div class="top"><button class="menu" id="menu">Topics</button><div class="mod" id="mod"></div><div class="count" id="count"></div><button class="theme" id="theme">Theme</button></div>
+    <div class="progress"><div id="bar"></div></div>
+    <div class="stage"><article class="card" id="card"></article></div>
+    <div class="controls"><button id="prev">← Back</button><button class="next" id="next">Next →</button></div>
+    <div class="hint">Use ← → arrow keys</div>
+  </main>
+</div>
+<script>
+// bars([[label, value], ...], max, unit, cls)
+function bars(rows, max, unit, cls){
+  unit = unit === undefined ? "" : unit; cls = cls || "";
+  return '<div class="bars">' + rows.map(function(r){
+    return '<div class="row"><span class="lab">'+r[0]+'</span><span class="track"><span class="fill '+cls+'" style="display:block;width:'+(Math.max(r[1],0)/max*100)+'%"></span></span><span class="val">'+r[1]+unit+'</span></div>';
+  }).join("") + '</div>';
+}
+
+// Cards: {t, h} for content, {t, h?, q:[[question, [options], correctIndex, why], ...]} for quizzes
+var M = [
+/* ───────────────────────── 0. START ───────────────────────── */
+{t:"Start here", c:[
+{t:"The paper in one page", h:`
+<p><b>Title:</b> "Urban heat island in the tropics: A review of advances, challenges, and future directions"</p>
+<p><b>Authors:</b> A. Lefevre, B. Malet-Damour, H. Boyer, G. Rivière. They work at the PIMENT Laboratory, University of Reunion Island (France).</p>
+<p><b>Journal:</b> <i>City and Environment Interactions</i>, vol. 28 (2025).</p>
+<p><b>Type:</b> a <b>systematic literature review</b>. The authors didn't run new experiments. They collected and analysed <b>156 earlier studies</b> on urban heat in tropical cities.</p>
+<p><b>Research question:</b> "How is the subject of Urban Heat Island specifically addressed in tropical regions?"</p>
+<h3>Structure of the paper</h3>
+<ol>
+<li>Introduction: what UHI is and why the tropics are special</li>
+<li>Methods: study area and how papers were picked (PRISMA)</li>
+<li>Measuring UHI on the ground (in situ)</li>
+<li>Measuring UHI from satellites (remote sensing)</li>
+<li>Computer models of UHI</li>
+<li>Solutions: green, blue, gray, less waste heat</li>
+<li>Discussion: gaps and future directions</li>
+<li>Conclusion</li>
+</ol>
+<div class="key">Main message: tropical UHI is different from temperate UHI. Research is concentrated in a few rich cities (especially Singapore). The field needs more multi-scale, multi-parameter, tropic-specific work.</div>`},
+{t:"Words you need", h:`
+<div class="tw"><table>
+<tr><th>Word</th><th>Meaning</th></tr>
+<tr><td><b>Urban heat island (UHI)</b></td><td>A city is warmer than the countryside around it.</td></tr>
+<tr><td><b>Rural</b></td><td>Countryside, outside the city.</td></tr>
+<tr><td><b>In situ</b></td><td>"On site": measured on the ground with real instruments.</td></tr>
+<tr><td><b>Remote sensing</b></td><td>Measuring from far away, usually with satellites.</td></tr>
+<tr><td><b>Albedo</b></td><td>How much sunlight a surface reflects. White = high albedo (stays cool). Black = low albedo (gets hot).</td></tr>
+<tr><td><b>Evapotranspiration</b></td><td>Water leaving soil and plant leaves as vapour. It takes heat away, like sweat cooling you.</td></tr>
+<tr><td><b>Sensible vs latent heat</b></td><td>Sensible heat is heat you can feel as temperature. Latent heat is energy used to evaporate water; it doesn't raise temperature.</td></tr>
+<tr><td><b>Impervious surface</b></td><td>A surface water can't soak into: concrete, asphalt, roofs.</td></tr>
+<tr><td><b>Anthropogenic heat (AH)</b></td><td>Waste heat from human activity: AC units, cars, factories.</td></tr>
+<tr><td><b>Urban morphology</b></td><td>The physical shape of a city: building heights, spacing, street layout.</td></tr>
+<tr><td><b>Microclimate</b></td><td>The climate of a small area, like a street or park.</td></tr>
+<tr><td><b>Mesoscale</b></td><td>The size of a city or region (km to hundreds of km).</td></tr>
+<tr><td><b>Thermal comfort</b></td><td>How hot or cold a person actually <i>feels</i>.</td></tr>
+</table></div>
+<p>More terms are explained when they first appear.</p>`}
+]},
+
+/* ───────────────────────── 1. BASICS ───────────────────────── */
+{t:"What is a UHI?", c:[
+{t:"Definition and history", h:`
+<p><b>Urban heat island (UHI)</b> = a <b>positive temperature difference</b> between a city and the rural area around it.</p>
+<div class="eq">UHI intensity = T<sub>urban</sub> − T<sub>rural</sub></div>
+<p>Scientists have studied it for about <b>200 years</b>.</p>
+<ul>
+<li><b>1833, Howard</b>, in <b>London</b>, was the first to notice it. The city was up to <b>2 °C</b> warmer than the nearby countryside.</li>
+<li><b>1927, Schmidt</b>, in <b>Vienna</b>, ran the first <b>mobile</b> survey: a car with a thermometer driving across the city.</li>
+</ul>
+<div class="key">Howard 1833 London, 2 °C = first detection. Schmidt 1927 Vienna, by car = first mobile transect.</div>`},
+{t:"Why cities get hot: Oke's three causes", h:`
+<p><b>Oke</b> identified the main mechanisms behind urban overheating:</p>
+<ol>
+<li><b>Urban morphology:</b> dense, tall buildings block wind, so there is less natural ventilation.</li>
+<li><b>Surface replacement:</b> vegetation is replaced by <b>mineral materials</b> such as asphalt and concrete, which <b>store heat</b>.</li>
+<li><b>Anthropogenic heat:</b> waste heat from vehicles, industry and <b>air conditioning</b>.</li>
+</ol>
+<p>These causes apply to cities everywhere. But <b>how</b> UHI shows up, and how much harm it does, depends on the climate zone. That's why the tropics need their own review.</p>`},
+{t:"What counts as \"tropical\"?", h:`
+<p>The paper uses the <b>Köppen(–Geiger) classification</b>, the most widely used climate classification system. It is based on where different <b>vegetation</b> grows, and has 5 groups:</p>
+<div class="tw"><table>
+<tr><th>Group</th><th>Name</th></tr>
+<tr class="hl"><td><b>A</b></td><td>Equatorial / tropical (this paper's focus)</td></tr>
+<tr><td>B</td><td>Arid</td></tr>
+<tr><td>C</td><td>Warm temperate</td></tr>
+<tr><td>D</td><td>Snow</td></tr>
+<tr><td>E</td><td>Polar</td></tr>
+</table></div>
+<p><b>Tropical (type A) climate:</b></p>
+<ul>
+<li>The average temperature of <b>all 12 months is above 18 °C</b>.</li>
+<li>High humidity, heavy rain, intense sunlight.</li>
+<li>The <b>third most extensive</b> climate zone, covering about <b>19%</b> of Earth's land.</li>
+<li>Mostly between the <b>Tropic of Cancer and the Tropic of Capricorn</b> (about 23.5° N to 23.5° S).</li>
+</ul>`},
+{t:"The tropical subtypes", h:`
+<div class="tw"><table>
+<tr><th>Code</th><th>Name</th><th>Key feature</th></tr>
+<tr><td><b>Af</b></td><td>Tropical Rainforest</td><td>Rain all year: more than <b>60 mm every month</b>. Very humid, stable.</td></tr>
+<tr><td><b>Am</b></td><td>Tropical Monsoon</td><td>A big rainy (monsoon) season plus a short dry season.</td></tr>
+<tr><td><b>Aw</b></td><td>Tropical Wet and Dry / Savannah</td><td>A clear, long <b>dry season</b>. Most widespread tropical type.</td></tr>
+<tr><td><b>As</b></td><td>Tropical Dry Summer</td><td>The dry season falls in summer. Rare.</td></tr>
+</table></div>
+<p>Examples in the paper:</p>
+<ul>
+<li>Singapore and Kuala Lumpur are <b>Af</b>.</li>
+<li>Lagos is <b>Am</b>.</li>
+<li>Nagpur, Kolkata, Ibadan and Presidente Prudente (Brazil) are <b>Aw</b>.</li>
+<li>Chennai is <b>As</b>.</li>
+</ul>
+<div class="tip">"f" = feucht (wet all year), "m" = monsoon, "w" = winter dry, "s" = summer dry. Remember Af = rainforest, Aw = savannah.</div>`},
+{t:"Why tropical UHIs are different", h:`
+<div class="vs">
+<div><h3>Temperate cities (e.g. Europe)</h3><ul><li>UHI is strongest <b>at night</b>.</li><li>It can even be <b>negative in the day</b>: the city is cooler than the countryside.</li></ul></div>
+<div><h3>Tropical cities</h3><ul><li>UHI can last <b>throughout the day</b>.</li><li>There are <b>daytime peaks</b> in some cases, especially in the <b>wet season</b>.</li></ul></div>
+</div>
+<p><b>Why?</b> Three things combine:</p>
+<ul>
+<li>High solar irradiance (strong sun)</li>
+<li>High moisture in the air</li>
+<li>The thermal properties of the building materials used</li>
+</ul>
+<h3>Evidence from earlier studies</h3>
+<ul>
+<li><b>Amorim &amp; Dubreuil:</b> a tropical Brazilian city reached a UHI of <b>6 °C</b>, compared with <b>3.5 °C</b> in a temperate French city.</li>
+<li><b>Khan et al.:</b> tropical UHI tends to be highest in <b>drier months</b>.</li>
+<li><b>Chatterjee et al.:</b> cool roofs and reflective pavements work <b>less well</b> in the tropics than <b>vegetation-based</b> solutions.</li>
+<li>Tropical UHIs raise risks to <b>health, thermal comfort and energy use</b>.</li>
+</ul>`},
+{t:"Fast, messy urban growth", h:`
+<p>Many tropical cities grow <b>rapidly</b>, often in an <b>organic, unregulated</b> way.</p>
+<ul>
+<li>Western cities often follow planned <b>grid</b> layouts.</li>
+<li>Tropical cities have <b>less formal</b> layouts. The result is mixed urban forms, <b>sprawl</b>, and a mix of high- and low-density areas.</li>
+</ul>
+<p>This makes UHI worse in three ways:</p>
+<ul>
+<li>more land cover change</li>
+<li>less vegetation</li>
+<li>altered microclimates</li>
+</ul>
+<p><b>Demographic boom:</b> according to the <b>IPCC</b>, <b>more than 90%</b> of global population growth in the coming decades will happen in <b>low-latitude</b> (tropical) areas.</p>
+<div class="key">The tropics combine the fastest urban growth with high exposure to heat. So adaptation strategies built for them are urgent.</div>`},
+{t:"What earlier reviews did, and the gap", h:`
+<p>Earlier reviews each covered only one piece:</p>
+<ul>
+<li><b>Liu et al.:</b> guidelines for <b>measurement</b> (experimental) studies in the tropics.</li>
+<li><b>Banerjee et al.:</b> urban design for thermal comfort in <b>Singapore</b>.</li>
+<li><b>Giridharan &amp; Emmanuel</b> and <b>Sari:</b> how urban <b>compactness</b> and <b>building design</b> affect UHI.</li>
+<li><b>Singh et al.:</b> high-resolution modelling of <b>anthropogenic heat</b> from buildings and AC in Singapore.</li>
+</ul>
+<p><b>The gap:</b> no systematic review had brought together <b>remote sensing + observations + numerical modelling</b> for tropical UHI, including the latest advances.</p>
+<p><b>This paper's aim:</b> a <b>holistic</b> view of tropical UHI research. It covers measurement, satellites, models and mitigation, and asks how effective each is in the tropics.</p>`},
+{t:"Quiz: What is a UHI?", q:[
+["Who first detected the urban heat island, and where?", ["Oke, in Vancouver","Howard, in London","Schmidt, in Vienna","Köppen, in Berlin"], 1, "Howard (1833) found London up to 2 °C warmer than the countryside."],
+["Which is NOT one of Oke's three main causes of urban overheating?", ["Dense, tall buildings reducing ventilation","Replacing vegetation with asphalt and concrete","Higher rainfall in cities","Waste heat from vehicles, industry and AC"], 2, "Oke's three are morphology, heat-storing mineral surfaces and anthropogenic heat."],
+["A climate is Köppen 'tropical' (A) if…", ["Annual rainfall is above 2000 mm","Every month averages above 18 °C","The city is on the equator","Humidity is above 70% all year"], 1, "All twelve monthly averages must exceed 18 °C."],
+["Roughly how much of Earth's land surface do tropical climates cover?", ["5%","11.5%","19%","35%"], 2, "About 19%. It is the third most extensive climate zone. (11.5% is Aw alone.)"],
+["How does tropical UHI typically differ from temperate UHI?", ["Tropical UHI happens only at night","Tropical UHI can persist through the day, with daytime peaks in the wet season","Tropical UHI is always negative in the day","There is no difference"], 1, "Temperate UHI peaks at night and can be negative by day. Tropical UHI can last all day."],
+["Amorim & Dubreuil compared a tropical Brazilian city with a temperate French city. Their UHI values were:", ["6 °C vs 3.5 °C","2 °C vs 2 °C","3.5 °C vs 6 °C","10 °C vs 1 °C"], 0, "The tropical city reached 6 °C; the temperate one 3.5 °C."],
+["According to the IPCC, what share of global population growth will happen in low-latitude areas?", ["About 50%","About 70%","More than 90%","Less than 30%"], 2, "More than 90%. This is why tailored tropical adaptation is urgent."],
+["Chatterjee et al. found that in tropical settings…", ["Cool roofs beat all other solutions","Vegetation-based solutions work better than cool roofs or reflective pavements","Nothing reduces UHI","Water bodies are the best solution"], 1, "Conventional cool roofs and reflective pavements were less effective than vegetation."],
+["Which Köppen tropical subtype has more than 60 mm of rain in every month?", ["Aw","As","Am","Af"], 3, "Af, tropical rainforest: wet all year."]
+]}
+]},
+
+/* ───────────────────────── 2. METHODS ───────────────────────── */
+{t:"How the review was done", c:[
+{t:"Rules for the study area", h:`
+<p>A study was included only if it met <b>both</b> conditions:</p>
+<ol>
+<li>It is located between latitudes <b>−23.5° and +23.5°</b> (between the two tropics).</li>
+<li>Its climate is <b>Köppen A</b>: Af, Am, Aw or As.</li>
+</ol>
+<p><b>Excluded</b>, even if inside the tropics:</p>
+<ul>
+<li>Subtropical climates such as <b>Cfa</b> and <b>Cwa</b></li>
+<li>Arid climates such as <b>BSh</b> and <b>BWh</b></li>
+</ul>
+<p>The authors also <b>excluded</b> type-A climates <b>outside</b> the tropics. This keeps the data processing consistent.</p>
+<p>"City" means the study location as the original authors named it. It could be a municipality, a metropolitan area or a district.</p>`},
+{t:"Where the studies are: cities and countries", h:`
+<p><b>Number of studies per city (Fig 1):</b></p>
+${bars([["Singapore",37],["Kolkata",8],["Putrajaya",7],["Kuala Lumpur",7],["Pres. Prudente",6],["Chennai",6],["Lagos",5],["Bangkok, Rio, Jakarta, Kampala",4]],37)}
+<p><b>Number of studies per country (Fig 2):</b></p>
+${bars([["Singapore",37],["India",21],["Malaysia",19],["Brazil",14],["Nigeria",11],["Indonesia",9],["China",8],["Sri Lanka",7]],37,"","b2")}
+<ul>
+<li><b>Singapore</b> is the main research hub, with the most publications.</li>
+<li><b>Tropical Africa</b> and <b>small tropical islands</b> have very few studies.</li>
+<li>The authors' explanation: unequal <b>research infrastructure, funding and scientific output</b>.</li>
+</ul>`},
+{t:"Climate subtypes: the Aw mismatch", h:`
+<p><b>Share of studies by Köppen subtype (Fig 3):</b></p>
+${bars([["Af (rainforest)",44.9],["Aw (savannah)",34],["Am (monsoon)",11.5],["Multiple",6.4],["As (dry summer)",3.2]],44.9,"%")}
+<ul>
+<li><b>As</b> is represented <b>only by Chennai</b> studies.</li>
+<li>Af dominates mainly because of <b>Singapore</b> (an Af city).</li>
+</ul>
+<h3>The mismatch</h3>
+<ul>
+<li><b>Aw</b> covers about <b>11.5% of global land</b>. It is the <b>most widespread</b> tropical subtype.</li>
+<li>Af and Am together cover <b>less</b> land than Aw.</li>
+<li>Yet Aw gets only about <b>a third</b> of studies, while Af gets <b>nearly half</b>.</li>
+</ul>
+<p><b>Reason:</b> Aw regions, such as <b>Sub-Saharan Africa</b> and <b>central India</b>, have fewer research institutions and less funding.</p>
+<div class="key">Af is over-represented (because of Singapore). Aw is under-represented, even though it is the most widespread and is urbanising rapidly. This is a research gap.</div>
+<div class="tip">Don't mix up the two 11.5% figures. Am = 11.5% of <i>studies</i>. Aw = 11.5% of global <i>land</i>.</div>`},
+{t:"Finding the papers: PRISMA", h:`
+<p><b>PRISMA</b> is a standard step-by-step method for systematic reviews. You find papers, screen them, check eligibility, and include the ones that pass.</p>
+<ul>
+<li><b>Database:</b> <b>Dimensions.ai</b>, shown to be reliable by Thelwall.</li>
+<li><b>Search terms:</b> "Urban Heat Island" AND "Tropics", and "Urban Heat Island" AND "Tropical".</li>
+<li><b>Searched:</b> titles, keywords and abstracts, for all periods up to <b>July 2024</b>.</li>
+<li><b>Found:</b> <b>508</b> documents.</li>
+</ul>
+<p><b>Excluded:</b></p>
+<ul>
+<li>Review articles, book chapters, non-peer-reviewed work, conference proceedings</li>
+<li>Studies not in the intertropical region</li>
+<li>Studies not directly about UHI (off-topic)</li>
+<li>Papers not in English</li>
+</ul>
+<p>Screening happened in two passes: first title and abstract, then full text.</p>
+<div class="eq">508 found − 352 excluded = 156 included</div>`},
+{t:"The PRISMA flowchart (Fig 4)", h:`
+<figure><img src="img/prisma.jpg" alt="PRISMA flowchart: 486 + 56 records, 34 duplicates removed, 508 identified, screening, 334 sought, 46 not retrieved, 288 assessed, 132 excluded, 156 included"><figcaption>Identification → Screening → Included.</figcaption></figure>
+<ul>
+<li>486 records ("Tropical") + 56 ("Tropics") − 34 duplicates = <b>508</b></li>
+<li>Title and abstract screening removed 89 that were not original papers and 85 that were off-topic. 334 were sought.</li>
+<li>46 couldn't be retrieved, leaving 288 assessed. 132 more were excluded, leaving <b>156 included</b>.</li>
+</ul>
+<p><b>Studies per topic:</b></p>
+${bars([["Experimental",69],["Numerical modelling",68],["Remote sensing",58],["Solutions",43]],69)}
+<p>These add up to more than 156 because some studies cover several topics.</p>`},
+{t:"Publications over time (Fig 5)", h:`
+<p>Only 12 of the 156 papers are from before 2012. The oldest is from 1987.</p>
+${bars([["2012",5],["2013",1],["2014",3],["2015",8],["2016",11],["2017",9],["2018",8],["2019",9],["2020",21],["2021",24],["2022",25],["2023",11],["2024 (to July)",9]],25)}
+<ul>
+<li>There is a <b>marked increase after 2015</b>.</li>
+<li>The <b>peak is 2020–2022</b>, followed by a decline in 2023.</li>
+</ul>
+<p><b>Why the rise?</b> The authors give two kinds of reason:</p>
+<ol>
+<li><b>Genuine interest:</b> UHI matters more with climate change and urban vulnerability.</li>
+<li><b>Structural changes in publishing:</b>
+<ul>
+<li>more open-access journals</li>
+<li>better digital indexing</li>
+<li>cheaper monitoring technology, such as remote sensing and temperature loggers</li>
+<li>more institutional <b>pressure to publish</b></li>
+</ul></li>
+</ol>`},
+{t:"Four themes in the literature", h:`
+<p>The authors read the papers and grouped them by theme:</p>
+<ol>
+<li><b>Characterisation</b>: describing the UHI using <b>in situ measurements</b> or <b>remote sensing</b>.</li>
+<li><b>Modelling</b>: building, calibrating or validating computer models.</li>
+<li><b>Mitigation</b>: testing solutions using <b>gray, green or blue</b> infrastructure.</li>
+</ol>
+<p>Fig 4 counts these as four topics: experimental, remote sensing, numerical modelling and solutions.</p>
+<p>Many studies span several categories, for example models combined with measurements. That's why the totals exceed 156. It also shows UHI research is <b>interdisciplinary</b>.</p>`},
+{t:"Four types of UHI", h:`
+<p>"UHI" can mean different things depending on <b>where</b> you measure:</p>
+<div class="tw"><table>
+<tr><th>Type</th><th>What it measures</th><th>How</th></tr>
+<tr class="hl"><td><b>Surface UHI (SUHI)</b></td><td>The temperature of ground and roof surfaces. The most commonly discussed type.</td><td>Satellite <b>Land Surface Temperature (LST)</b></td></tr>
+<tr class="hl"><td><b>Atmospheric UHI</b>, also called the <b>canopy-layer UHI</b></td><td>The air temperature near the ground, where people live</td><td><b>In situ</b> air temperature sensors</td></tr>
+<tr><td><b>Urban Boundary Layer UHI (UBL-UHI)</b></td><td>Vertical temperature differences higher up in the atmosphere</td><td>Less often studied</td></tr>
+<tr><td><b>Subsurface UHI (SSUHI)</b></td><td>Heat stored <b>underground</b></td><td>Less often studied</td></tr>
+</table></div>
+<p>Each type comes from different physical processes and needs different methods. They must be kept <b>distinct</b> to compare studies properly.</p>
+<div class="key">Satellite = surface temperature = SUHI. Ground sensors = air temperature = atmospheric/canopy UHI.</div>`},
+{t:"Quiz: How the review was done", q:[
+["Which database did the authors use to find papers?", ["Scopus","Web of Science","Dimensions.ai","Google Scholar"], 2, "Dimensions.ai, judged reliable by Thelwall."],
+["How many documents were identified, and how many were finally included?", ["508 and 156","542 and 288","334 and 156","508 and 352"], 0, "508 identified; 352 excluded; 156 included."],
+["Which country has the most studies by far?", ["India","Brazil","Malaysia","Singapore"], 3, "Singapore, with 37. India is second with 21."],
+["Which Köppen subtype has the largest share of studies?", ["Aw (34%)","Af (44.9%)","Am (11.5%)","As (3.2%)"], 1, "Af, nearly half, driven largely by Singapore."],
+["Why is the low share of Aw studies called a 'mismatch'?", ["Aw cities are cooler","Aw is the most widespread tropical subtype by land area, yet gets only about a third of studies","Aw has no cities","Aw is not tropical"], 1, "Aw covers about 11.5% of global land, more than Af and Am combined."],
+["Studies in the As climate come only from which city?", ["Chennai","Kolkata","Lagos","Bangkok"], 0, "As (tropical dry summer) = only Chennai studies (3.2%)."],
+["Which was NOT an exclusion criterion?", ["Review articles","Non-English papers","Conference proceedings","Studies that used satellite data"], 3, "Satellite studies were included. Reviews, non-English, proceedings and off-topic papers were excluded."],
+["The surface UHI (SUHI) is usually measured using…", ["Air temperature sensors at 2 m","Satellite land surface temperature (LST)","Underground probes","Radiosondes"], 1, "SUHI comes from satellite LST. Canopy/atmospheric UHI uses in situ air temperature."],
+["When did tropical UHI publications peak?", ["1995–2000","2010–2012","2020–2022","2023–2024"], 2, "A sharp rise after 2015, a peak in 2020–2022, then a decline in 2023."],
+["The authors say the rise in publications reflects…", ["Only genuine scientific interest","Only pressure to publish","Both genuine interest and structural changes (open access, cheaper sensors, pressure to publish)","A drop in research funding"], 2, "They stress both causes."]
+]}
+]},
+
+/* ───────────────────────── 3. IN SITU ───────────────────────── */
+{t:"Measuring on the ground", c:[
+{t:"Two ways to characterise UHI", h:`
+<div class="vs">
+<div><h3>In situ (field data)</h3><p>Instruments on the ground measure air temperature differences between the <b>urban canopy</b> and rural areas. They also measure how temperature varies <b>within</b> the city.</p></div>
+<div><h3>Remote sensing (satellites)</h3><p>Satellites measure <b>surface</b> temperature differences between the city and the countryside.</p></div>
+</div>
+<p>In situ methods come in two kinds:</p>
+<ul><li><b>Mobile measurements</b> (transects)</li><li><b>Fixed measurements</b> (weather stations)</li></ul>
+<p><b>Urban canopy:</b> the layer of air between the ground and the rooftops, where people live.</p>`},
+{t:"Mobile transects: the idea", h:`
+<p>A <b>transect</b> is a pre-planned route across the city. Sensors are mounted on a <b>vehicle</b>, a bike, or carried <b>on foot</b>, and record temperature along the way.</p>
+<p>History: Schmidt, 1927, in Vienna, by car.</p>
+<div class="vs">
+<div><h3>Advantages</h3><ul><li><b>Fine-grained spatial</b> mapping</li><li><b>Cost-effective</b> and <b>flexible</b></li><li>Useful where there are few fixed stations</li></ul></div>
+<div><h3>Disadvantages</h3><ul><li>Only <b>momentary "snapshots"</b></li><li>Can't track UHI over time</li><li>Hard to <b>synchronise</b> readings across time and space</li></ul></div>
+</div>
+<p><b>Why the snapshot problem is worse in the tropics:</b> humidity, sunlight and cloud cover change <b>rapidly</b> during the day, so a reading taken an hour later can differ a lot.</p>
+<div class="key">Only <b>7</b> of the 156 studies used mobile transects. The method is rare in the tropics, possibly because repeated runs are logistically demanding.</div>`},
+{t:"Mobile transect studies (Table 1)", h:`
+<div class="tw"><table>
+<tr><th>Study</th><th>City / Köppen</th><th>Mode</th><th>When</th><th>Focus</th><th class="r">ΔT</th></tr>
+<tr><td>Wong &amp; Yu</td><td>Singapore / Af</td><td>Car</td><td>Night (2–4 a.m.)</td><td>Role of vegetation</td><td class="r">4.01 °C</td></tr>
+<tr><td>Qaid et al.</td><td>Putrajaya / Af</td><td>Car</td><td>Day &amp; night, 6×/day</td><td>UHI + thermal comfort</td><td class="r">3 °C</td></tr>
+<tr><td>Lindén</td><td>Ouagadougou (Burkina Faso) / Aw</td><td>Car</td><td>Evening &amp; night</td><td>Vegetation + water</td><td class="r">1.9 °C UHI; 5 °C cool island</td></tr>
+<tr><td>Kotharkar et al.</td><td>Nagpur / Aw</td><td>Car</td><td>Night</td><td>Urban form</td><td class="r">3.53 °C</td></tr>
+<tr><td>Cardoso et al.</td><td>3 Brazilian cities / Aw</td><td>Car</td><td>Evening</td><td>Morphology + vegetation, <b>medium-sized</b> cities</td><td class="r">2.7–6 °C</td></tr>
+<tr><td>Jeganathan et al.</td><td>Chennai / As</td><td>Car</td><td>Morning &amp; evening</td><td>Intra-urban variation</td><td class="r">3–4.5 °C</td></tr>
+<tr><td>Chàfer et al.</td><td>Singapore / Af</td><td><b>On foot</b></td><td>Day, evening, night</td><td>Urban morphology</td><td class="r">1.03–4.5 °C</td></tr>
+</table></div>
+<p><b>A pattern:</b> the transport mode matches the scale of the study.</p>
+<ul>
+<li><b>Cars</b> are used for city-scale or between-neighbourhood comparisons.</li>
+<li><b>Walking or cycling</b> is used for fine-scale work in streets and parks.</li>
+</ul>
+<p>A <b>cool island</b> is the opposite of a heat island: an area cooler than its surroundings, for example due to vegetation or water.</p>`},
+{t:"Mobile transects: the problems", h:`
+<h3>1. Wrong time of day</h3>
+<ul>
+<li>Most studies measure at <b>night or late afternoon</b>. Those are the peak UHI times in <b>temperate</b> zones.</li>
+<li>In the tropics, <b>daytime heat stress is more severe</b>, because of continuous solar radiation, especially in the <b>wet season</b>.</li>
+<li>So night-only studies <b>miss daytime discomfort</b> and capture only one side of the problem.</li>
+</ul>
+<h3>2. Not really "UHI"</h3>
+<ul>
+<li>Many studies that claim to measure UHI actually compare <b>intra-urban</b> areas, for example built-up vs vegetated parts of the same city.</li>
+<li>A true UHI compares <b>urban vs rural</b>.</li>
+<li>So transects suit <b>local thermal contrasts</b>, not broad UHI intensity.</li>
+</ul>
+<h3>Fix</h3>
+<p>Complement transects with <b>fixed stations</b>, plus <b>remote sensing</b> where possible. Satellites also give only intermittent snapshots.</p>`},
+{t:"Fixed stations: the idea", h:`
+<p><b>Fixed meteorological stations</b> are permanent weather stations placed in urban and rural areas.</p>
+<ul>
+<li>They collect <b>continuous</b> data, revealing <b>daily and seasonal</b> patterns.</li>
+<li>UHI intensity = the difference between <b>at least two stations</b>: one urban, one rural.</li>
+<li>A <b>network</b> of stations gives better spatial detail across city zones.</li>
+</ul>
+<p><b>Scales used in studies:</b></p>
+<div class="tw"><table>
+<tr><th>Scale</th><th>Example</th></tr>
+<tr><td>National</td><td>Simath &amp; Emmanuel: a station network across <b>Sri Lanka</b></td></tr>
+<tr><td>City</td><td>Singapore and Putrajaya studies. <b>Balogun, Akure (Nigeria):</b> only <b>2 stations</b> (urban + airport). <b>Amorim &amp; Dubreuil, Presidente Prudente:</b> UHI stronger in the tropical city than in the temperate one.</td></tr>
+<tr><td>Neighbourhood</td><td>Yola et al., Indonesia: multi-point measurements + simulation</td></tr>
+<tr><td>Street</td><td>Chow &amp; Roth and Acero (Singapore), Sharmin (Dhaka), Ramakreshnan (Kuala Lumpur): temperature + humidity for pedestrian comfort</td></tr>
+</table></div>
+<p><b>Upper air:</b> <b>Hung &amp; Shih</b> used surface stations plus <b>radiosondes</b> (weather balloons) in <b>Taiwan</b>. They found stronger <b>upper-troposphere warming</b>, especially <b>December–March</b>.</p>`},
+{t:"Micro-scale monitoring", h:`
+<p>Newer studies use small sensors at very fine scales:</p>
+<ul>
+<li><b>Weitz et al. (Kolkata):</b> <b>miniature sensors</b> measured heat exposure in <b>slums</b>.</li>
+<li><b>Ow et al. (Singapore):</b> the effect of <b>tree shade</b> on surface temperatures.</li>
+<li><b>Hwang et al. (Singapore):</b> conditions in <b>urban parks</b> (wind, air temperature, mean radiant temperature).</li>
+<li><b>Acero et al.:</b> how well <b>standalone trees</b> cool. <b>Tree species</b> and <b>diffuse radiation</b> matter.</li>
+</ul>
+<h3>Weitz et al., in detail (Table 5)</h3>
+<ul>
+<li>130 urban and 180 rural residents <b>wore</b> mini-sensors.</li>
+<li>In the city, <b>indoors was hotter than outdoors</b>, especially at night.</li>
+<li>Urban residents were <b>4.3×</b> more exposed to a Heat Index above 45 °C.</li>
+<li>Rural <b>women</b> were more exposed than men.</li>
+</ul>`},
+{t:"What fixed stations show: Aw vs Af", h:`
+<div class="vs">
+<div><h3>Aw (savannah): e.g. Nigeria, Brazil</h3><ul><li>Night-time UHI often <b>2–4 °C in the dry season</b></li><li>Sometimes up to <b>7 °C</b> in certain urban forms</li><li><b>Seasonality dominates</b>: the wet/dry contrast amplifies UHI</li></ul></div>
+<div><h3>Af (rainforest): e.g. Singapore</h3><ul><li>UHI peaks align with the <b>monsoon</b> period</li><li>Strongest in <b>dense commercial areas</b></li><li><b>More stable</b> but <b>humidity-amplified</b>, tied to anthropogenic heat and dense buildings</li></ul></div>
+</div>
+<h3>More examples</h3>
+<ul>
+<li><b>Correa et al., Vitória (Brazil):</b> stronger UHI and SUHI in <b>spring/summer</b>.</li>
+<li><b>Setiawati et al., Indonesia:</b> adding vegetation <b>lowered</b> UTCI in Surabaya (<b>−0.84 °C</b>), but <b>raised</b> it in Denpasar and Medan (<b>+3.1 °C</b>).</li>
+</ul>
+<p>UTCI is a "feels-like" heat stress index, explained in the next module. The point of the Setiawati result: <b>greening doesn't always help</b>. It depends on climate and urban form.</p>`},
+{t:"Fixed-station highlights (Table 5)", h:`
+<div class="tw"><table>
+<tr><th>Study</th><th>City</th><th>Finding</th></tr>
+<tr><td>Chow &amp; Roth</td><td>Singapore / Af</td><td>UHI max about <b>7 °C</b> in a commercial zone during the <b>monsoon (May–Aug)</b>, <b>3–4 h after sunset</b></td></tr>
+<tr><td>Roth et al.</td><td>Singapore / Af</td><td><b>20 stations, 6 years</b>. Average night UHI <b>2.8–3.7 °C</b></td></tr>
+<tr><td>Ramakreshnan et al.</td><td>Kuala Lumpur / Af</td><td>Max 1.71 °C; stronger at night in the dry monsoon</td></tr>
+<tr><td>Ahmed et al.</td><td>Putrajaya / Af</td><td>Night UHI 2 °C, negligible by day. <b>Street orientation</b> and <b>vegetation</b> matter</td></tr>
+<tr><td>Balogun</td><td>Akure / Aw</td><td>Night UHI up to <b>4 °C (dry season)</b>; about 2 °C by day (wet season)</td></tr>
+<tr><td>Adebayo</td><td>Ibadan / Aw</td><td>Stronger at night (1 °C, dry season); weak by day</td></tr>
+<tr><td>Zhang &amp; Wu</td><td>Sanya, China / Aw</td><td><b>Chinese New Year tourism</b> raised UHI (+0.66 °C max)</td></tr>
+<tr><td>Best et al.</td><td>Paramaribo / Am</td><td>Green zones up to <b>−2.5 °C</b></td></tr>
+<tr><td>Sharmin et al.</td><td>Dhaka / Aw</td><td>1–3.8 °C differences by urban form. <b>Diverse</b> forms (mixed plot sizes and heights) give better comfort</td></tr>
+<tr class="hl"><td>Rajapaksha et al.</td><td>Darwin, Australia / Aw</td><td>Anthropogenic heat: <b>buildings 87–95%</b>, traffic 4–13%, human metabolism 0.5%</td></tr>
+</table></div>`},
+{t:"Fixed stations: the verdict", h:`
+<div class="vs">
+<div><h3>Strengths</h3><ul><li><b>Long-term</b> records over years or decades</li><li>Track <b>seasonal and year-to-year</b> trends</li><li>Can test whether <b>mitigation works</b> over time</li><li>Show <b>climate-specific</b> patterns (Af vs Aw vs Am)</li></ul></div>
+<div><h3>Weaknesses</h3><ul><li>Need <b>big investment and maintenance</b></li><li>Few points, so they can miss fine spatial detail</li></ul></div>
+</div>
+<div class="key">Mobile gives good space detail but poor time detail. Fixed gives good time detail but poor space detail. Use <b>both</b>.</div>`},
+{t:"Quiz: Measuring on the ground", q:[
+["How many of the reviewed studies used mobile transects?", ["7","19","43","69"], 0, "Only seven. The method is rare in the tropics."],
+["The main weakness of mobile transects is that they…", ["Are very expensive","Give only momentary snapshots, so they can't track UHI over time","Can't measure air temperature","Only work in rural areas"], 1, "They give a snapshot; tropical weather changes rapidly during the day."],
+["Why can night-only transects be a problem in the tropics?", ["Sensors don't work at night","Tropical daytime heat stress is more severe, so night-only studies miss it","UHI doesn't exist at night","Cars can't drive at night"], 1, "Continuous sunlight makes daytime discomfort severe, especially in the wet season."],
+["Many 'UHI' transect studies actually measured…", ["Urban vs rural differences","Intra-urban differences, e.g. built-up vs vegetated areas","Ocean temperatures","Indoor temperatures"], 1, "Transects suit local contrasts, not true urban–rural UHI intensity."],
+["The minimum needed to measure UHI intensity with fixed stations is…", ["One urban station","Two stations, one urban and one rural","Ten stations","A satellite"], 1, "At least one urban and one rural station."],
+["Which Singapore study found a UHI of about 7 °C in a commercial zone during the monsoon, 3–4 h after sunset?", ["Roth et al.","Wong & Yu","Chow & Roth","Chàfer et al."], 2, "Chow & Roth."],
+["In Aw (savannah) cities, fixed stations typically show…", ["Stable UHI all year","Strong night-time UHI in the dry season (2–4 °C, sometimes up to 7 °C)","No UHI at all","UHI only in the wet season"], 1, "Seasonality dominates in Aw. Af is more stable but humidity-amplified."],
+["In Darwin, which source produced most anthropogenic heat?", ["Traffic","Human metabolism","Buildings (87–95%)","Industry"], 2, "Buildings 87–95%, traffic 4–13%, metabolism 0.5%."],
+["Weitz et al.'s Kolkata wearable-sensor study found that…", ["Rural residents were more exposed than urban ones","Urban residents were 4.3× more exposed to Heat Index above 45 °C, and indoors was hotter than outdoors","Men were more exposed than women everywhere","Slums were cooler than the countryside"], 1, "Urban residents 4.3× more exposed; rural women more exposed than men."],
+["Setiawati et al. found that vegetation scenarios…", ["Lowered UTCI everywhere","Lowered UTCI in Surabaya but raised it in Medan and Denpasar","Had no effect","Raised UTCI everywhere"], 1, "−0.84 °C in Surabaya, +3.1 °C in Medan/Denpasar. Greening isn't automatically good."]
+]}
+]},
+
+/* ───────────────────────── 4. PARAMETERS & COMFORT ───────────────────────── */
+{t:"What gets measured", c:[
+{t:"Which parameters studies measure (Fig 6)", h:`
+<p>How often each parameter was measured in experimental papers:</p>
+${bars([["Tair (air temp)",57],["RH (humidity)",24],["Tsurf (surface temp)",22],["Vair (wind speed)",13],["MRT",6],["Gi (solar irradiance)",4]],57)}
+<ul>
+<li><b>Air temperature</b> dominates.</li>
+<li><b>Radiation</b> (Gi, MRT) is measured rarely, even though the tropical sun is intense.</li>
+</ul>
+<div class="key">The ranking to remember: Tair &gt; RH &gt; Tsurf &gt; Vair &gt; MRT &gt; Gi.</div>`},
+{t:"Air temperature vs surface temperature", h:`
+<div class="vs">
+<div><h3>Air temperature (Tair)</h3><ul><li>Measured <b>2–3 m above ground</b> in a <b>ventilated shelter</b></li><li>Shows the ambient conditions people are exposed to</li><li>The <b>main parameter</b> for UHI intensity</li></ul></div>
+<div><h3>Surface temperature (Tsurf)</h3><ul><li>Measured <b>on</b> surfaces with <b>thermocouples</b> or <b>infrared sensors</b></li><li>Shows how materials <b>store and emit</b> heat</li><li>An important <b>complement</b> to Tair</li></ul></div>
+</div>
+<p>Examples of Tair-focused studies: Roth, Manik &amp; Syaukat, Zhang &amp; Wu, Adebayo, Teo.</p>
+<p>Studies that also measured Tsurf: Tso, Amorim, Maskulrath, Al-ameri.</p>`},
+{t:"Humidity and wind", h:`
+<ul>
+<li><b>24 studies</b> emphasised <b>humidity</b>, for example Amorim and Best et al.
+<ul>
+<li>Moisture matters a lot for comfort in the tropics.</li>
+<li>Humidity data lets researchers compare <b>wet vs dry seasons</b>.</li>
+<li>They showed how high humidity in the <b>wet season</b> hurts comfort.</li>
+</ul></li>
+<li>Only <b>13 studies</b> measured <b>air velocity (wind)</b>, for example Wong, Lindén &amp; Holmer, Rajagopalan.
+<ul><li>These studies stressed that <b>ventilation</b> moderates UHI.</li></ul></li>
+</ul>
+<p><b>Why it matters:</b> on a humid day, sweat can't evaporate, so you feel hotter at the same temperature. Wind helps sweat evaporate and carries heat away.</p>`},
+{t:"Outdoor thermal comfort (OTC)", h:`
+<p><b>Problem:</b> air temperature alone doesn't capture how hot people <b>feel</b>, especially in the tropics. There, <b>humidity</b> and <b>solar radiation</b> matter a lot.</p>
+<p><b>Outdoor thermal comfort (OTC)</b> combines several factors:</p>
+<ul><li>temperature</li><li>humidity</li><li>radiation</li><li>air movement</li></ul>
+<div class="key">Only <b>19 studies</b> combined UHI analysis with thermal comfort evaluation.</div>`},
+{t:"Mean Radiant Temperature (MRT)", h:`
+<p><b>MRT</b> sums up all the radiant heat hitting a person from <b>every direction</b>. It includes:</p>
+<ul>
+<li><b>Short-wave</b> radiation: direct and reflected sunlight.</li>
+<li><b>Long-wave</b> radiation: heat glowing from hot walls and ground.</li>
+</ul>
+<p>Think of standing next to a sun-baked wall. The air may be 32 °C, but you feel much hotter. MRT captures that.</p>
+<ul>
+<li>MRT is one of the <b>most crucial</b> OTC indicators.</li>
+<li>It is needed to calculate advanced indices such as <b>PET</b>.</li>
+<li>Yet it is <b>underused</b>: measured in only a few studies, mostly in Singapore and Dhaka.</li>
+</ul>`},
+{t:"Thermal comfort indices", h:`
+<div class="tw"><table>
+<tr><th>Index</th><th>Full name</th><th>Note / used by</th></tr>
+<tr class="hl"><td><b>PET</b></td><td>Physiological Equivalent Temperature</td><td>By <b>Höppe</b>. Needs MRT. Acero, Sun, Rajan &amp; Amirtham</td></tr>
+<tr class="hl"><td><b>UTCI</b></td><td>Universal Thermal Climate Index</td><td>By <b>Jendritzky</b>, Bröde. Used in <b>7 studies</b> (Setiawati, Sun, Dutta)</td></tr>
+<tr><td><b>SET</b></td><td>Standard Effective Temperature</td><td>Huang &amp; Chen</td></tr>
+<tr><td><b>THI</b></td><td>Thermohygrometric Index</td><td>Balogun et al., Doan et al.</td></tr>
+<tr><td><b>Humidex</b></td><td>Combines temperature + humidity</td><td>Obe et al.</td></tr>
+<tr><td><b>TDI</b></td><td>Thom's Discomfort Index</td><td>Silva et al.</td></tr>
+</table></div>
+<p><b>Occurrences of OTC indicators (Fig 7):</b></p>
+${bars([["PET",9],["MRT",8],["UTCI",7],["Other",10]],10)}
+<div class="tip">PET → Höppe. UTCI → Jendritzky. "Humidex" = temperature + humidity. These names are easy MCQ targets.</div>`},
+{t:"Quiz: What gets measured", q:[
+["Which parameter is measured most often in experimental UHI studies?", ["Relative humidity","Surface temperature","Air temperature","Mean radiant temperature"], 2, "Tair: 57 occurrences."],
+["Which is measured LEAST often?", ["Wind speed","Global irradiance (Gi)","Humidity","Surface temperature"], 1, "Gi: only 4. Radiation is under-measured."],
+["Air temperature for UHI is typically measured…", ["On the road surface","2–3 m above ground in a ventilated shelter","At rooftop level","By satellite"], 1, "2–3 m, in a ventilated shelter."],
+["Surface temperature tells us mainly about…", ["What people feel","How materials store and emit heat","Wind patterns","Rainfall"], 1, "Tsurf shows heat storage and emission by materials."],
+["MRT accounts for…", ["Only air temperature","Long-wave and short-wave radiation from all directions","Only humidity","Only wind"], 1, "Mean Radiant Temperature combines all radiant heat reaching a person."],
+["How many studies combined UHI with outdoor thermal comfort evaluation?", ["7","13","19","57"], 2, "Only 19."],
+["PET was developed by…", ["Jendritzky","Höppe","Oke","Thom"], 1, "PET is Höppe's. UTCI is Jendritzky's."],
+["Which index combines temperature and humidity and was used by Obe et al.?", ["SET","Humidex","PET","TDI"], 1, "Humidex."],
+["How many studies measured air velocity?", ["4","13","24","57"], 1, "13. Humidity was 24."]
+]}
+]},
+
+/* ───────────────────────── 5. REMOTE SENSING ───────────────────────── */
+{t:"Satellites and land change", c:[
+{t:"Satellites in the tropics", h:`
+<p><b>Remote sensing</b> uses satellite or aerial images, often <b>thermal infrared</b>. It is good for <b>large areas</b>. It measures <b>Land Surface Temperature (LST)</b>, giving the <b>surface UHI (SUHI)</b>.</p>
+<p><b>Big tropical problem:</b> persistent <b>cloud cover</b>, especially in the <b>wet season</b>. Clouds block thermal images.</p>
+<p><b>Early work:</b> <b>Tso</b> and <b>Nichol</b> used <b>Landsat</b> over Singapore and Kuala Lumpur.</p>
+<ul>
+<li>They showed that <b>solar azimuth</b> (the sun's direction) affects surface temperature patterns.</li>
+<li>They showed satellites can still indicate <b>daytime</b> UHI when skies are clear.</li>
+</ul>
+<p>Remote sensing combined with <b>GIS</b> (mapping software) has been very useful. Malaysian research worked around frequent cloud to improve LST mapping.</p>`},
+{t:"Landsat vs MODIS", h:`
+<div class="vs">
+<div><h3>Landsat</h3><ul><li><b>High spatial</b> resolution (fine detail)</li><li>But it passes over only <b>every 16 days</b></li><li>Best for <b>detailed urban-scale</b> study and precise urban–rural comparison</li></ul></div>
+<div><h3>MODIS</h3><ul><li><b>Daily</b> coverage</li><li>But <b>coarse</b> resolution (about <b>1 km</b>)</li><li>Best for <b>regional/national</b> and <b>seasonal</b> analysis</li></ul></div>
+</div>
+<p><b>Example: Ayanlade, Lagos, MODIS 2002–2013</b></p>
+<ul>
+<li>Night-time surface UHI was <b>stronger in the dry season</b>.</li>
+<li>The paper links this to the <b>urban–rural thermo-hydrological contrast</b>: how differently the city and the countryside handle heat and water. It is largest when vegetation is dry.</li>
+<li>In plain terms: dry air and dry ground let the countryside lose heat fast at night, while concrete keeps the city warm. So the gap is biggest.</li>
+<li>This matches earlier work showing that <b>vegetation moisture</b> shapes early-morning LST in humid tropical cities (Acero &amp; González-Asensio).</li>
+</ul>
+<p>Combining <b>Landsat + MODIS</b> gives a fuller picture over time.</p>
+<div class="key">Landsat = sharp but rare (16 days). MODIS = blurry (1 km) but daily.</div>`},
+{t:"Urbanisation drives UHI", h:`
+<p>Rapid population growth and <b>unregulated</b> expansion lead to:</p>
+<ul><li><b>loss of vegetation</b></li><li>more <b>impervious surfaces</b></li></ul>
+<p>Both raise temperatures, often within just a few decades.</p>
+<div class="tw"><table>
+<tr><th>City</th><th>What happened</th></tr>
+<tr class="hl"><td><b>Jakarta</b></td><td><b>50%</b> loss of green areas (2000–2012) → <b>+3.2 °C</b></td></tr>
+<tr><td>Lagos, Rio de Janeiro</td><td>Similar trends</td></tr>
+<tr><td>Accra &amp; Kumasi (Ghana)</td><td>Higher LST from urban sprawl</td></tr>
+<tr class="hl"><td><b>Bhubaneswar vs Cuttack</b> (India twin cities)</td><td>Bhubaneswar kept local cooling through vegetation. Cuttack had stronger UHI from denser urbanisation.</td></tr>
+<tr><td>Tainan (Taiwan)</td><td>Land conversion 2007–2021 → +1.1 °C LST</td></tr>
+<tr><td>Lagos, Ibadan, Umuahia (Nigeria)</td><td>Day and night UHI rose with expansion</td></tr>
+<tr><td>Kota Kinabalu (Malaysia)</td><td>UHI rose 1991–2018</td></tr>
+<tr><td>San Salvador</td><td>+0.5 °C SUHI (2000–2015)</td></tr>
+<tr><td>Mérida (Mexico)</td><td>Up to +3.94 °C from vegetation loss</td></tr>
+<tr><td>Kolkata</td><td>A 20-year study linked vegetation loss to stronger UHI</td></tr>
+</table></div>`},
+{t:"The Kampala exception, and Africa", h:`
+<p><b>Kampala (Uganda)</b> is the hopeful case:</p>
+<ul>
+<li>Urban land cover <b>doubled</b> from 1995 to 2016.</li>
+<li>Yet SUHI intensity <b>fell</b> from <b>2.2 °C to 1.9 °C</b> by 2017.</li>
+<li>Reason: <b>green spaces were integrated</b> into the city.</li>
+</ul>
+<div class="key">Growth doesn't automatically mean a worse UHI. Planning with green space can offset it.</div>
+<p><b>Africa-wide:</b> satellite analysis showed a <b>sharp increase in night-time heatwaves</b> over 1981–2020. Urbanisation was a key contributor.</p>`},
+{t:"Urbanisation studies compared (Table 2)", h:`
+<div class="tw"><table>
+<tr><th>City / Köppen</th><th>Period</th><th>Change</th><th class="r">ΔLST / UHI</th></tr>
+<tr><td>Ibadan, Nigeria / Aw</td><td>1984–2019</td><td>+179 km² urban</td><td class="r"><b>+21 °C</b></td></tr>
+<tr><td>Kerala, India / Am</td><td>1988–2018</td><td>+21% built-up</td><td class="r">+7 °C</td></tr>
+<tr><td>Osogbo, Nigeria / Aw</td><td>1986–2015</td><td>+51% impervious</td><td class="r">+4.6 °C</td></tr>
+<tr><td>Umuahia, Nigeria / Am</td><td>1986–2017</td><td>−60% vegetation</td><td class="r">+4.5 °C</td></tr>
+<tr><td>Mérida, Mexico / Aw</td><td>2000–2018</td><td>−5413 ha vegetation</td><td class="r">+2.36–3.94 °C</td></tr>
+<tr><td>Lagos, Nigeria / Am (14.8 M people)</td><td>1984–2016</td><td>+310 km² built-up</td><td class="r">+2.3 °C SUHI</td></tr>
+<tr><td>Kandy, Sri Lanka / Af</td><td>1996–2017</td><td>less veg, more impervious</td><td class="r">+2.3 °C</td></tr>
+<tr><td>Kumasi, Ghana / Aw</td><td>2002–2017</td><td>Urban expansion</td><td class="r">+2.0 °C</td></tr>
+<tr><td>Bhubaneswar-Cuttack / Aw</td><td>2001–2020</td><td>Urban expansion (MODIS)</td><td class="r">+0.75 °C SUHI</td></tr>
+<tr><td>San Salvador / Aw</td><td>2000–2015</td><td>Urban expansion</td><td class="r">+0.5 °C SUHI</td></tr>
+</table></div>
+<p>All of these except Bhubaneswar-Cuttack (MODIS) used <b>Landsat</b>.</p>`},
+{t:"Careful when comparing cities", h:`
+<p>Comparing, say, Bhubaneswar with Lagos is risky. The cities differ in:</p>
+<ul>
+<li>population size</li>
+<li>socio-economic development</li>
+<li>urban morphology</li>
+<li>climate</li>
+</ul>
+<p>Also, each study defines "<b>urban</b>" and "<b>rural</b>" in its own way, which can <b>distort</b> UHI estimates.</p>
+<p><b>Fix:</b> use <b>standard</b> land-cover classes and metrics, such as the <b>Local Climate Zones (LCZ)</b> framework.</p>
+<p><b>LCZ</b> is a standard way to label any patch of a city by type, for example "compact high-rise" or "sparsely built". Studies using it can be compared fairly.</p>`},
+{t:"Vegetation cools", h:`
+<p>In the tropics, vegetation moderates UHI in three ways:</p>
+<ol><li>It provides <b>shade</b>.</li><li>It increases <b>evapotranspiration</b>.</li><li>It <b>reduces surface temperatures</b>.</li></ol>
+<p><b>NDVI</b> (Normalized Difference Vegetation Index) is a satellite measure of how green an area is.</p>
+<ul>
+<li><b>São Paulo and Rio:</b> NDVI analysis shows green areas are clearly cooler.</li>
+<li><b>Bangkok:</b> tree planting is recommended to offset vegetation loss.</li>
+<li><b>Ho Chi Minh City:</b> urban parks reduce LST and heat stress.</li>
+<li><b>Indonesia:</b> green infrastructure counteracts rising temperatures.</li>
+<li><b>Kerala:</b> LST rose from <b>26.5 °C to 28.1 °C</b> (1988–2019), linked to loss of green cover.</li>
+<li><b>Chennai, Dhaka, Kolkata:</b> <b>large parks</b> and <b>high-albedo surfaces</b> were especially effective.</li>
+</ul>`},
+{t:"But vegetation isn't always good", h:`
+<p>In <b>hot-humid</b> climates, too much or poorly planned vegetation can make <b>nights worse</b>:</p>
+<ul>
+<li>Dense canopies <b>block radiative heat loss</b> to the night sky, trapping heat below.</li>
+<li>They add <b>moisture</b> to air that is already humid.</li>
+</ul>
+<p><b>Standalone trees</b> may have a <b>limited</b> effect on air temperature, given tropical high humidity and low wind.</p>
+<p>So greening must be <b>climate-sensitive</b>. Planners should consider:</p>
+<ul>
+<li>vegetation type and spatial layout</li>
+<li>humidity and cloud cover</li>
+<li>night-time cooling needs</li>
+</ul>
+<h3>Tropical challenges for keeping greenery</h3>
+<ul>
+<li>High population growth and <b>land pressure</b></li>
+<li><b>Deforestation</b> for urban expansion</li>
+<li><b>Year-round heat</b>, so continuous green cover matters even more than in temperate cities</li>
+</ul>`},
+{t:"Seasons change the UHI", h:`
+<p>In the tropics, three seasonal factors shape UHI:</p>
+<ul><li><b>rainfall</b></li><li><b>atmospheric moisture</b></li><li><b>vegetation cycles</b></li></ul>
+<div class="vs">
+<div><h3>Peaks in the DRY season</h3><ul><li><b>Lagos:</b> night UHI peaks in the dry season. The paper links this to <b>lower humidity</b> and <b>lower evapotranspiration</b>. Dry air and dry ground let the countryside cool fast at night, while the city's concrete keeps releasing stored heat.</li><li><b>Horn of Africa:</b> drought and vegetation loss amplify overheating.</li><li>Rayong (Thailand) and Kerala: wet/dry vegetation changes drive the pattern.</li></ul></div>
+<div><h3>Peaks in the RAINY season</h3><ul><li><b>Presidente Prudente:</b> surface UHI peaks in the rainy season, through cloud, rain and material properties.</li><li>Another Brazilian city: highest in the <b>hot, rainy summer</b>.</li><li><b>1449 Chinese cities:</b> humid tropical and subtropical cities have the most intense SUHI in the <b>rainy</b> season. <b>Arid</b> zones show weaker effects (little evapotranspiration).</li></ul></div>
+</div>
+<p><b>Other cases:</b></p>
+<ul>
+<li><b>San Salvador:</b> a 16 °C LST amplitude during mid-morning warming.</li>
+<li><b>Bangkok:</b> patterns shift with land use and the monsoon.</li>
+<li><b>Mughal et al.:</b> <b>sea surface temperature</b> changes coastal city climate in wet and dry seasons.</li>
+</ul>`},
+{t:"Tropical vs temperate: Presidente Prudente vs Rennes", h:`
+<p>This study compared medium-sized cities: Presidente Prudente (Brazil, tropical) and Rennes (France, temperate).</p>
+<div class="vs">
+<div><h3>Temperate (Rennes)</h3><p>Bigger <b>daily</b> temperature swings.</p></div>
+<div><h3>Tropical (Presidente Prudente)</h3><p>More <b>sustained heat retention</b>. Two causes: constant warmth and <b>reduced night-time ventilation</b>.</p></div>
+</div>
+<p>Vegetation reduced both air and surface temperatures, <b>especially at night</b>, when atmospheric heat islands are strongest.</p>
+<div class="key">Policy needs to build <b>seasonal variability</b> into planning, for example tree-planting campaigns timed to regional climate patterns.</div>`},
+{t:"Quiz: Satellites and land change", q:[
+["The biggest limitation of satellite thermal imaging in the tropics is…", ["Too much sunlight","Persistent cloud cover, especially in the wet season","No satellites pass over the tropics","Too little vegetation"], 1, "Clouds block thermal infrared observations."],
+["Landsat vs MODIS: which statement is correct?", ["Landsat is daily at 1 km; MODIS is every 16 days at high resolution","Landsat has high spatial resolution but a 16-day revisit; MODIS is daily at about 1 km","Both are daily","Both have 1 km resolution"], 1, "Landsat = sharp but infrequent. MODIS = coarse but daily."],
+["In Jakarta, a 50% loss of green areas (2000–2012) caused about…", ["+0.5 °C","+1.1 °C","+3.2 °C","+21 °C"], 2, "+3.2 °C."],
+["Kampala is notable because…", ["It has no UHI","Its urban area doubled but SUHI fell from 2.2 to 1.9 °C thanks to green spaces","It has the highest UHI in Africa","It is in a temperate climate"], 1, "Integrating green space offset the effect of growth."],
+["Ayanlade's MODIS study of Lagos found night-time surface UHI was strongest in the…", ["Wet season","Dry season","Monsoon onset","No seasonal pattern"], 1, "Dry season: dry air and dry ground let the countryside cool fast at night, while the city keeps releasing stored heat."],
+["Why can dense vegetation worsen night-time conditions in hot-humid cities?", ["Leaves emit heat","Dense canopies block radiative heat loss to the sky and add moisture","Trees attract more people","Trees increase wind speed"], 1, "Trapped long-wave heat plus extra humidity."],
+["The study of 1449 Chinese cities found the most intense SUHI in humid tropical/subtropical cities during the…", ["Dry season","Rainy season","Winter","No difference"], 1, "Rainy season; arid zones showed weaker effects."],
+["What do the authors recommend for comparing UHI across cities fairly?", ["Use only MODIS","Standardised frameworks such as Local Climate Zones (LCZ)","Compare only cities of equal population","Stop comparing cities"], 1, "LCZ and standard land-cover classes."],
+["The Bhubaneswar–Cuttack twin-city study showed…", ["Both had identical UHI","Bhubaneswar kept local cooling via vegetation; Cuttack had stronger UHI from denser urbanisation","Cuttack was cooler","Neither had UHI"], 1, "Vegetation vs density."],
+["Compared with temperate Rennes, tropical Presidente Prudente showed…", ["Bigger daily swings","More sustained heat retention and reduced nocturnal ventilation","No UHI","UHI only in the day"], 1, "Tropical cities hold heat longer."]
+]}
+]},
+
+/* ───────────────────────── 6. MODELLING I ───────────────────────── */
+{t:"Computer models I: city scale", c:[
+{t:"Why models, and the three families", h:`
+<p><b>Models</b> simulate UHI on a computer. They let you test "what if?" scenarios, like adding trees or cool roofs, <b>before</b> spending money in the real world.</p>
+<p>There are three families of tools:</p>
+<ol>
+<li><b>Thermal simulation tools</b> with urban canopy models, at city, neighbourhood or building scale.</li>
+<li><b>Empirical / statistical</b> models, such as regression.</li>
+<li><b>Machine learning</b>, which is still emerging.</li>
+</ol>
+<p><b>Most-used tools (Fig 8):</b></p>
+${bars([["WRF",18],["Regression",15],["Envi-met",14],["AI",4],["Rayman",3]],18)}
+<p>The text says <b>20</b> studies used WRF, while Fig 8 shows 18. Either way, <b>WRF is #1</b> and <b>Envi-met</b> is the top CFD tool.</p>
+<p><b>Model scale matches study scale:</b></p>
+<ul>
+<li><b>City</b> → WRF</li>
+<li><b>Neighbourhood</b> → Envi-met / CFD</li>
+<li><b>Building</b> → Rayman, EnergyPlus</li>
+</ul>`},
+{t:"WRF: the city-scale workhorse", h:`
+<p><b>WRF = Weather Research and Forecasting</b> model.</p>
+<ul>
+<li>It is the <b>most used</b> numerical tool in tropical UHI studies.</li>
+<li>It was developed by <b>NCAR</b> (National Center for Atmospheric Research, USA).</li>
+<li>It is used in research <b>and</b> in real weather forecasting.</li>
+<li>It simulates <b>temperature, wind, humidity, precipitation</b>.</li>
+<li>It runs at resolutions from about <b>1 km down to a few hundred metres</b>, which suits <b>mesoscale</b> (city/region) simulation.</li>
+</ul>
+<h3>Plug-ins that make WRF "urban"</h3>
+<p>WRF is coupled with an <b>Urban Canopy Model (UCM)</b>, which represents how buildings interact with the air. According to Zhu &amp; Ooka, three UCMs are built into WRF:</p>
+<ol>
+<li><b>SLUCM</b>: Single-Layer Urban Canopy Model</li>
+<li><b>MLUCM</b>: Multi-Layer UCM, also called <b>BEP</b> (Building Effect Parameterization)</li>
+<li><b>BEP + BEM</b>: BEP plus a <b>Building Energy Model</b></li>
+</ol>
+<p>Coupling with the <b>Noah Land Surface Model</b> adds <b>vegetation, hydrology and artificial materials</b>.</p>
+<div class="key">WRF (NCAR) + UCM (SLUCM / BEP / BEP+BEM) + Noah LSM.</div>`},
+{t:"WRF findings: urbanisation", h:`
+<p>Tropical cities often expand in an <b>unplanned</b> way, changing how land and atmosphere interact. WRF studies show:</p>
+<ul>
+<li><b>Ho Chi Minh City and Malaysia:</b> a patchy land-use mix (<b>heterogeneity</b>) changes the height of the <b>planetary boundary layer</b> and the <b>sensible heat flux</b>.</li>
+<li><b>Bhubaneswar and Chennai:</b> urbanisation alters <b>boundary-layer dynamics</b>, creating local heating and <b>disrupted wind patterns</b>.</li>
+<li><b>Kolkata (Rath et al.):</b> urbanisation boosts boundary-layer growth, local <b>convection</b>, <b>night-time UHI</b>, and changes <b>rainfall</b> patterns.</li>
+</ul>
+<p><b>Boundary layer:</b> the lowest part of the atmosphere, roughly the bottom 1–2 km, which "feels" the ground. Cities heat and stir it.</p>
+<div class="key">Urbanisation-induced surface <b>heterogeneity amplifies UHI</b>. Expansion is a significant risk factor.</div>`},
+{t:"WRF findings: heat stress and extremes", h:`
+<ul>
+<li><b>Lagos:</b> high-resolution WRF showed big spatial differences in <b>heat stress</b>, from the combined effect of urban expansion and climate change.</li>
+<li><b>Tropical Andes:</b> WRF coupled with <b>chemical transport</b> models assessed <b>air pollution</b> effects on urban microclimate.</li>
+<li><b>Chew et al. (Singapore):</b> studied the <b>UHI–heatwave interaction</b>. Tropical cities facing severe future heat stress need more study.</li>
+</ul>
+<p>WRF studies of heat stress and extreme weather are <b>understudied in the tropics</b> compared with temperate regions.</p>
+<p>WRF has been <b>validated</b> against in situ observations in <b>Southeast Asia</b> (Doan, Ho Chi Minh City), so it is reliable for adaptation planning.</p>`},
+{t:"WRF findings: mitigation", h:`
+<ul>
+<li><b>More vegetation</b> and <b>cool roofs</b> → <b>reduce</b> UHI intensity.</li>
+<li><b>Anthropogenic emissions</b> (waste heat) → <b>worsen</b> urban heating.</li>
+<li>Sensitivity analyses of WRF's physics settings helped optimise <b>reflective coatings</b>.</li>
+<li><b>Singh et al., Angul-Talcher (India):</b> an <b>industrial</b> heat island. The best mix was <b>cool roofs + water bodies + mixed forest patches</b>. They stressed the need to combine science, economics and policy.</li>
+</ul>
+<div class="tip">Angul-Talcher = industrial heat island = cool roofs + water + mixed forest combined.</div>`},
+{t:"Other city-scale models", h:`
+<h3>UWG: Urban Weather Generator</h3>
+<ul>
+<li><b>Litardo et al., Duran (Ecuador):</b> used clustering and sensitivity analysis.</li>
+<li>The key drivers were <b>informal settlements</b> with high anthropogenic heat.</li>
+<li>The model was validated against in situ measurements.</li>
+<li>They used <b>TRNSYS v.17</b> to estimate building cooling demand. UHI raised cooling energy by:
+<ul>
+<li><b>30–70%</b> in <b>residential</b> buildings</li>
+<li><b>10–20%</b> in <b>commercial</b> buildings</li>
+</ul></li>
+</ul>
+<h3>ADMS-Urban</h3>
+<ul>
+<li><b>Aktas et al., Kuala Lumpur:</b> thermal comfort and building energy use across <b>land-use types</b>.</li>
+<li>It captures the role of <b>humidity</b> in how heat is perceived.</li>
+<li>It also integrates land use and <b>pollution</b>.</li>
+</ul>
+<h3>t-TEB: tropical Town Energy Budget</h3>
+<ul>
+<li>Built by <b>Karam et al.</b> as a tropical extension of <b>TEB</b> (Masson).</li>
+<li>It handles <b>free convection</b>, which is strong in the tropics and gives more intense heat diffusion.</li>
+<li>It includes <b>limited urban drainage</b>: water pooling on roads after downpours.</li>
+<li>It was tested on <b>Rio de Janeiro (2007)</b>, with results within <b>one standard deviation</b> of observed hourly averages.</li>
+</ul>`},
+{t:"Linking scales", h:`
+<p>Some studies chain a city model with a street-level model. They couple <b>WRF</b> with microclimate tools such as <b>Envi-met</b> or <b>PALM-4U</b>.</p>
+<ul>
+<li><b>Wai et al.:</b> tested <b>water spraying</b> to cool <b>high-density Hong Kong</b> under projected <b>2050</b> tropical conditions.</li>
+<li>This shows the value of <b>multi-scale</b> modelling for tailored adaptation.</li>
+</ul>
+<div class="key">WRF gives the city-wide weather. The micro model zooms in on streets. Together they test detailed interventions.</div>`},
+{t:"Quiz: Models I", q:[
+["Which numerical tool is used most in tropical UHI studies?", ["Envi-met","Rayman","WRF","EnergyPlus"], 2, "WRF (20 studies in the text; 18 in Fig 8)."],
+["WRF was originally developed by…", ["NASA","NCAR","IPCC","ESA"], 1, "The National Center for Atmospheric Research."],
+["Which is NOT one of the three urban canopy models integrated in WRF?", ["SLUCM","BEP (MLUCM)","BEP + BEM","STEVE"], 3, "STEVE is a separate empirical neighbourhood model from Singapore."],
+["Coupling WRF with the Noah Land Surface Model mainly adds…", ["Air pollution chemistry","Vegetation, hydrology and artificial-material effects","Building interiors","Traffic flows"], 1, "Noah LSM handles land-surface and ecological processes."],
+["UWG simulations in Duran, Ecuador showed UHI raised residential cooling energy by…", ["5–10%","10–20%","30–70%","Over 100%"], 2, "30–70% residential; 10–20% commercial."],
+["t-TEB is special because it…", ["Is a satellite","Accounts for tropical free convection and limited urban drainage","Is a machine-learning model","Only works in deserts"], 1, "A tropical extension of TEB, tested on Rio (2007)."],
+["Singh et al. found the best mitigation for the Angul-Talcher industrial heat island was…", ["Cool roofs alone","Cool roofs + water bodies + mixed forest patches","Electric vehicles","Green walls only"], 1, "A combined strategy."],
+["Rath et al. found that urbanisation over Kolkata…", ["Reduced rainfall only","Boosted boundary-layer development, convection and night-time UHI, and altered rainfall","Had no effect","Cooled the city"], 1, "Seen in WRF simulations of pre-monsoon thunderstorms."],
+["Wai et al. coupled WRF with micro-scale tools to test…", ["Green roofs in Lagos","Water spraying in Hong Kong under 2050 conditions","Cool pavements in Singapore","EVs in Bangkok"], 1, "Water spraying in high-density Hong Kong."]
+]}
+]},
+
+/* ───────────────────────── 7. MODELLING II ───────────────────────── */
+{t:"Computer models II: street to building", c:[
+{t:"Neighbourhood scale: CFD and Envi-met", h:`
+<p>At neighbourhood scale, the key question is how <b>urban form</b> affects heat. Changing building <b>heights and spacing</b> changes airflow and comfort.</p>
+<p><b>CFD = Computational Fluid Dynamics</b>: simulating how air flows around buildings.</p>
+<h3>Envi-met: the most popular CFD tool (14 studies)</h3>
+<ul>
+<li>Developed by <b>Bruse &amp; Fleer</b>.</li>
+<li><b>3-D</b>, <b>dynamic</b> (changes over time).</li>
+<li>Simulates <b>buildings–vegetation–atmosphere</b> interactions in <b>urban canyons</b> (streets lined with buildings).</li>
+<li>Based on the <b>Navier–Stokes</b> equations with a <b>first-order turbulence</b> model.</li>
+</ul>
+<h3>Envi-met studies</h3>
+<ul>
+<li><b>Huang &amp; Chen, Kaohsiung (Taiwan):</b> mitigation strategies.</li>
+<li><b>Shahidan et al. (Malaysia):</b> tree placement + ground materials.</li>
+<li><b>Herath et al., Colombo:</b> green infrastructure, <b>validated</b> with field data.</li>
+<li><b>Swamy et al., Chennai:</b> air pollution + UHI. <b>Low tropical wind speeds (0.2–5 m/s)</b> worsen UHI by reducing convective cooling.</li>
+</ul>`},
+{t:"Kotharkar et al., Nagpur: four lessons", h:`
+<p>An Envi-met test of solutions in Nagpur, India:</p>
+<ol>
+<li><b>Cool roofs</b> work better in <b>high-density</b> areas than in sparse settlements.</li>
+<li><b>Greening</b> is very beneficial for cooling and comfort at <b>pedestrian level</b>.</li>
+<li>Trees <b>spread along streets</b> beat the same amount of trees concentrated in one green area.</li>
+<li>A <b>Green Area Ratio (GAR) of 25%</b> suits an <b>LCZ 9</b> area, giving up to <b>2.7 °C daytime cooling</b>.</li>
+</ol>
+<p><b>LCZ 9</b> is a sparsely built settlement. In Nagpur these areas are developing into <b>LCZ 3</b> (compact low-rise).</p>
+<div class="key">Which intervention works best depends on the neighbourhood's density and built form.</div>`},
+{t:"Envi-met and comfort indices", h:`
+<p>Envi-met can compute <b>outdoor thermal comfort</b>. It includes personal factors such as <b>metabolic rate</b> and <b>clothing insulation</b>, plus humidity and sun.</p>
+<ul>
+<li><b>UTCI:</b> Raya et al., <b>Jakarta transit-oriented development (TOD)</b> areas.</li>
+<li><b>PET:</b> used widely, including for <b>biomimicry</b>-based urban designs (designs copying nature).</li>
+<li><b>MRT + PET:</b> Arif &amp; Yola.</li>
+<li><b>PET:</b> Chatterjee et al., Acero et al.</li>
+</ul>`},
+{t:"STEVE vs Envi-met", h:`
+<p><b>STEVE</b> is an <b>empirical</b> model built from <b>tropical data from Singapore</b>.</p>
+<ul>
+<li>It calculates <b>maximum, minimum and average air temperature</b> within a <b>50 m radius</b>.</li>
+<li>It accounts for constant heat, humidity and tropical urban forms.</li>
+<li><b>Ignatius et al.:</b> used it to study how <b>urban texture</b> (density, building form) affects heat gain, ventilation and comfort in Singapore.</li>
+</ul>
+<h3>Head-to-head (Wong et al.)</h3>
+<div class="vs">
+<div><h3>Envi-met</h3><p>Built mainly for <b>temperate</b> climates. On empty land it <b>under-predicted temperatures by 2–3 °C</b>, because of its "ideal conditions" assumptions.</p></div>
+<div><h3>STEVE</h3><p>Calibrated on tropical data. It predicted <b>higher, more realistic</b> temperatures.</p></div>
+</div>
+<div class="key">Lesson: use models <b>designed for tropical climates</b>.</div>`},
+{t:"Other CFD tools", h:`
+<div class="tw"><table>
+<tr><th>Tool</th><th>Study</th><th>Finding</th></tr>
+<tr><td><b>ANSYS Fluent</b></td><td>Adelia et al., Singapore</td><td>How <b>high-rise residential</b> buildings shed waste heat. The <b>position of heat sources</b> and <b>building porosity</b> (gaps for air) control heat removal from narrow streets.</td></tr>
+<tr><td><b>OpenFOAM</b></td><td>Mughal et al.</td><td>UTCI and vegetation. In the tropics, vegetation can <b>raise humidity</b> and <b>reduce</b> already-low <b>wind</b>, both bad for comfort.</td></tr>
+<tr><td><b>CRADLE (scSTREAM)</b></td><td>Ill Kim, Singapore</td><td>Optimised <b>office building forms</b> for <b>natural ventilation</b>: better comfort and energy efficiency.</td></tr>
+</table></div>
+<h3>A common weakness of CFD</h3>
+<ul>
+<li>Most CFD studies assume <b>steady-state inflow</b>: constant wind coming in.</li>
+<li>Real tropical wind has <b>gusts, turbulence and shifts</b>.</li>
+<li><b>Zhang et al.</b> developed <b>time-varying inflow</b> methods, which give more realistic airflow in street canyons.</li>
+</ul>`},
+{t:"Building scale: Rayman", h:`
+<p><b>Rayman</b> models <b>radiation</b> exchange at the level of a person or building. It is good at calculating <b>MRT</b>, which matters because the tropical sun is the main cause of discomfort.</p>
+<ul>
+<li><b>Cuba (Camagüey courtyards):</b>
+<ul>
+<li>Courtyards with an <b>aspect ratio between 1 and 3</b> improved ventilation and limited solar heat.</li>
+<li>Avoiding <b>East–West</b> orientations cut MRT by up to <b>15.7 °C</b>.</li>
+</ul></li>
+<li><b>Fung &amp; Jim, Hong Kong:</b> PET. <b>Tree configurations</b> give crucial shade.</li>
+<li><b>Simath &amp; Emmanuel, Colombo:</b> combine <b>natural ventilation</b> with strategic <b>vegetation</b>.</li>
+<li><b>Arif &amp; Yola, Jakarta:</b> reducing <b>Sky View Factor (SVF)</b> to increase shading lowers MRT and PET.</li>
+</ul>
+<p><b>Aspect ratio</b> = height of the surrounding walls ÷ width of the open space.</p>
+<p><b>Sky View Factor</b> = how much sky is visible from a point. Lower SVF means more shade by day.</p>`},
+{t:"Building scale: DART and EnergyPlus", h:`
+<h3>DART (Discrete Anisotropic Radiative Transfer)</h3>
+<ul>
+<li><b>Dissegna et al., Singapore:</b> rebuilt a <b>3-D</b> urban landscape.</li>
+<li>They showed how <b>leaf area density</b> changes the radiation absorbed by surfaces.</li>
+<li>The results were <b>validated</b> with field measurements.</li>
+</ul>
+<h3>EnergyPlus (building energy simulation)</h3>
+<ul>
+<li><b>Yang et al., Singapore</b>, compared green and cool roofs:
+<ul>
+<li><b>Green roofs</b> help, but frequent rain and <b>high moisture</b> affect their performance.</li>
+<li><b>Cool roofs</b> had <b>higher</b> mitigation potential. They reflect sunlight <b>without adding latent heat</b> (moisture) from evapotranspiration.</li>
+<li>So cool roofs suit <b>Singapore</b> better.</li>
+</ul></li>
+<li><b>Koranteng et al., Ghana:</b> green roofs are thermally efficient (−1.5 °C indoors). A <b>larger leaf area index</b> and <b>deeper soil</b> cool more.</li>
+</ul>
+<div class="tip">This contrasts with Chatterjee in the intro (vegetation beats cool roofs). The answer depends on context. In very humid Singapore, cool roofs won in the EnergyPlus study.</div>`},
+{t:"The indoor–outdoor gap", h:`
+<ul>
+<li>Envi-met is widely used for <b>outdoor</b> microclimate.</li>
+<li>It is <b>rarely coupled</b> with building energy tools to study <b>indoor–outdoor</b> interactions.</li>
+<li>This coupling matters because outdoor heat drives <b>indoor cooling energy</b> demand.</li>
+</ul>
+<p><b>Solutions that exist:</b></p>
+<ul>
+<li><b>Lauzet et al.:</b> a <b>chaining</b> method that feeds <b>Envi-met outputs into EnergyPlus</b>.</li>
+<li><b>PALM-4U:</b> combines urban canopy, building energy and atmospheric dynamics in <b>one framework</b>.</li>
+</ul>
+<p>These hybrid frameworks are <b>underexplored</b> in tropical studies, and future research should use them.</p>`},
+{t:"Empirical and statistical models", h:`
+<p>These use <b>observed data</b> and statistics (mainly <b>regression</b>) to link urban features to temperature. They are <b>cheap and adaptable</b>.</p>
+<div class="tw"><table>
+<tr><th>Where</th><th>Study</th><th>What</th></tr>
+<tr><td>Singapore</td><td>Richards et al.</td><td>Cooling by different <b>vegetation types</b></td></tr>
+<tr><td>Singapore</td><td>Jin et al.</td><td>Building <b>density and height</b> → microclimate</td></tr>
+<tr><td>Singapore</td><td>Yu et al.</td><td>Morphology vs air temperature over time (a <b>campus</b>)</td></tr>
+<tr><td>Kolkata</td><td>Khan &amp; Chatterjee</td><td><b>25 field sites</b> + simulation, urban vs suburban</td></tr>
+<tr><td>India</td><td>Das et al.</td><td>Cooling by urban <b>green spaces</b> (correlation + regression)</td></tr>
+<tr><td>Indian cities</td><td>Mohammad &amp; Goswami</td><td><b>Multiple linear regression</b>: daily and seasonal SUHI drivers</td></tr>
+<tr><td>Mérida, Mexico</td><td>Palafox-Juárez et al.</td><td>Regression of LST vs <b>NDVI</b></td></tr>
+<tr><td>Kampala</td><td>Kabano et al.</td><td>Temperature, humidity, heat index across the <b>wet–dry transition</b></td></tr>
+</table></div>`},
+{t:"Machine learning", h:`
+<p>Machine learning is still <b>emerging</b>: only <b>4 studies</b> used it.</p>
+<div class="tw"><table>
+<tr><th>Study</th><th>Where</th><th>Method</th></tr>
+<tr><td>Mohite &amp; Surawar</td><td>Nagpur</td><td><b>Random Forest</b> to predict thermal comfort (with Rayman)</td></tr>
+<tr><td>Jia et al.</td><td>Hong Kong &amp; Singapore</td><td><b>Geographically Weighted Regression + Deep Neural Networks</b>: green infrastructure cooling</td></tr>
+<tr><td>Zhou et al.</td><td>Sanya, China</td><td><b>Genetic Algorithm</b> to optimise <b>green space layout</b></td></tr>
+<tr><td>Garzón et al.</td><td>A Colombian city</td><td>Remote sensing + ML to model <b>SUHI</b></td></tr>
+</table></div>
+<p>ML <b>complements</b> simulation and statistics.</p>`},
+{t:"From simulation to real projects", h:`
+<p>Models aren't only for understanding physics. They are <b>decision-support tools</b>.</p>
+<ul>
+<li>Envi-met, WRF-UCMs and EnergyPlus are often used to test <b>vegetation, cool roofs and design changes</b> before building anything.</li>
+<li>Planners can foresee cooling effects and judge <b>cost-effectiveness, scalability and limits</b>.</li>
+<li>Outputs such as temperature drops or comfort index changes turn ideas into <b>evidence-based</b> plans.</li>
+</ul>
+<div class="key">In tropical cities, urbanisation often <b>outpaces</b> adaptation. Testing solutions virtually is a crucial asset.</div>`},
+{t:"All tools at a glance (Table 6)", h:`
+<div class="tw"><table>
+<tr><th>Tool</th><th>Scale</th><th>Strength in the tropics</th></tr>
+<tr><td><b>WRF + UCMs</b></td><td>City / region</td><td>Mesoscale and seasonal dynamics; validated in SE Asia; sensitive to land use and AH</td></tr>
+<tr><td><b>UWG</b></td><td>City / neighbourhood</td><td>High AH in informal settlements; building energy</td></tr>
+<tr><td><b>ADMS-Urban</b></td><td>City / neighbourhood</td><td>Humidity and low ventilation; includes land use and pollution</td></tr>
+<tr><td><b>t-TEB</b></td><td>City</td><td>Tropical convection, rainfall, poor drainage</td></tr>
+<tr><td><b>Envi-met</b></td><td>Neighbourhood</td><td>Most popular CFD; greening, tree shade, ventilation; MRT/PET/UTCI</td></tr>
+<tr><td><b>STEVE</b></td><td>Neighbourhood</td><td>Empirical, tropical data; beats temperate tools</td></tr>
+<tr><td><b>ANSYS Fluent, OpenFOAM, CRADLE</b></td><td>Neighbourhood / building</td><td>Flexible CFD; building porosity</td></tr>
+<tr><td><b>Rayman</b></td><td>Building / individual</td><td>Solar radiation, MRT, PET; courtyards, shading</td></tr>
+<tr><td><b>EnergyPlus</b></td><td>Building</td><td>Cooling load; green and cool roofs; indoor–outdoor coupling</td></tr>
+<tr><td><b>DART</b></td><td>Building / urban patch</td><td>3-D radiation transfer with vegetation</td></tr>
+</table></div>`},
+{t:"Quiz: Models II", q:[
+["Which is the most commonly used CFD tool in tropical UHI studies?", ["ANSYS Fluent","OpenFOAM","Envi-met","CRADLE"], 2, "Envi-met, with 14 studies."],
+["Envi-met is based on…", ["Regression equations","Navier–Stokes equations with a first-order turbulence model","Satellite images","Genetic algorithms"], 1, "Developed by Bruse & Fleer."],
+["When STEVE and Envi-met were compared for Singapore, Envi-met…", ["Over-predicted temperatures by 5 °C","Under-predicted temperatures by 2–3 °C","Matched exactly","Could not run"], 1, "Envi-met assumes ideal conditions and is temperate-calibrated."],
+["STEVE calculates air temperature within what radius?", ["5 m","50 m","500 m","1 km"], 1, "Max, min and average air temperature within 50 m."],
+["Kotharkar et al. (Nagpur) found that vegetation…", ["Works best concentrated in one park","Works better spread along streets than the same amount in one green area","Has no effect","Only works at night"], 1, "Also: GAR of 25% for LCZ 9 gives up to 2.7 °C daytime cooling."],
+["Yang et al. (EnergyPlus, Singapore) found cool roofs beat green roofs because…", ["Green roofs are too expensive","Cool roofs reflect sunlight without adding latent heat or moisture","Green roofs die in rain","Cool roofs are cheaper"], 1, "High moisture limits green roof performance in Singapore."],
+["In Rayman studies of Cuban courtyards, avoiding East–West orientation reduced MRT by up to…", ["2.7 °C","7 °C","15.7 °C","50 °C"], 2, "15.7 °C, with aspect ratios between 1 and 3."],
+["A common limitation of CFD studies is…", ["They can't model buildings","They assume steady-state inflow, unlike gusty tropical winds","They need satellites","They only work at city scale"], 1, "Zhang et al. proposed time-varying inflow."],
+["How many reviewed studies used machine learning?", ["4","14","18","43"], 0, "Only four."],
+["Which ML method did Zhou et al. use in Sanya to optimise green space layout?", ["Random Forest","Deep Neural Network","Genetic Algorithm","K-means"], 2, "A Genetic Algorithm."],
+["Lauzet et al. proposed…", ["A new satellite","Chaining Envi-met outputs into EnergyPlus to link outdoor and indoor","A green roof design","A comfort index"], 1, "Coupling outdoor microclimate with building energy is rare but needed."],
+["OpenFOAM results (Mughal et al.) warned that tropical vegetation can…", ["Lower humidity","Increase humidity and reduce already-low wind speeds","Raise wind speed","Reduce MRT to zero"], 1, "Both hurt thermal comfort."]
+]}
+]},
+
+/* ───────────────────────── 8. SOLUTIONS ───────────────────────── */
+{t:"Solutions", c:[
+{t:"Four families of solutions", h:`
+<p><b>43</b> of the papers test mitigation solutions. Most work at the <b>microscale</b>: buildings or streets.</p>
+<div class="tw"><table>
+<tr><th>Family</th><th>What</th></tr>
+<tr><td><b>Green</b></td><td>Vegetation: trees, parks, green roofs, green walls</td></tr>
+<tr><td><b>Blue</b></td><td>Water: lakes, fountains, wetlands</td></tr>
+<tr><td><b>Gray</b></td><td>Technology and structure: high-albedo materials, cool pavements, reflective paints, better urban morphology</td></tr>
+<tr><td><b>Reducing anthropogenic heat (AH)</b></td><td>Public transport, electric mobility, building insulation, optimised AC use</td></tr>
+</table></div>
+<div class="key">Green + Blue = <b>Nature-Based Solutions (NBS)</b>. They use ecological processes.</div>`},
+{t:"Green: why it works, and its limits", h:`
+<p>In the tropics, vegetation is <b>active all year</b>, especially in <b>Af</b> zones, where dense foliage gives constant shade.</p>
+<p><b>Two cooling mechanisms:</b></p>
+<ol>
+<li>Less solar radiation is absorbed by surfaces (<b>shade</b>).</li>
+<li>Cooling by <b>evapotranspiration</b>.</li>
+</ol>
+<p><b>Limit:</b> in <b>extreme heat or drought</b>, plants close their <b>stomata</b> (leaf pores) to save water. Transpiration stops, so cooling drops.</p>
+<p><b>Plus side:</b> heavy rain and humidity make greenery easy to maintain, so it is <b>sustainable and relatively low-cost</b>.</p>
+<p><b>Acero et al.:</b> <b>rain events</b> change air temperature and humidity in parks, altering their cooling benefit.</p>`},
+{t:"Green: roofs, walls, trees, parks", h:`
+<h3>On buildings</h3>
+<ul>
+<li><b>Green roofs</b> can significantly cut surface and air temperatures. They are widely studied in tropical cities.</li>
+<li><b>Vertical greening systems (VGS)</b> in Sri Lanka lower surface temperatures (Rupasinghe &amp; Halwatura).</li>
+<li><b>Living walls</b> in the Dominican Republic cool too (Ruiz-Valero et al.).</li>
+<li><b>Caution:</b> in very humid climates, <b>plant maintenance</b> and <b>structural durability</b> are challenges.</li>
+</ul>
+<h3>In the city</h3>
+<ul>
+<li><b>Richards &amp; Edwards, Singapore:</b> measured street-tree cooling using <b>Google Street View</b>.</li>
+<li><b>Acero et al.:</b> <b>species choice</b> matters; leaf <b>transmissivity</b> and <b>diffuse radiation</b> affect cooling.</li>
+<li><b>Tan et al.:</b> compared plant species for UHI mitigation.</li>
+<li><b>Li et al.:</b> optimal green-space layouts in <b>Dhaka, Kolkata, Bangkok</b>.</li>
+<li><b>Silveira et al.:</b> <b>private gardens</b> matter (Rio).</li>
+<li><b>Anak Kemarau:</b> more green space correlates with lower LST (Malaysia).</li>
+</ul>`},
+{t:"Green: design ideas", h:`
+<ul>
+<li><b>"Shadow umbrella" (Emmanuel):</b> tree canopies and green structures form a continuous shade cover in <b>high-density</b> tropical cities.</li>
+<li><b>Harun et al., Kuala Lumpur:</b> vegetation <b>patches</b> cool through <b>shading + evapotranspiration</b>.</li>
+<li><b>Standalone trees:</b> recent measurements suggest a <b>minimal</b> temperature effect in tropical weather.</li>
+<li><b>Agrihood (Irvine et al., Bangkok):</b> combines urban greenery with <b>food production</b> and ecosystem services, for cooling and <b>biodiversity</b>.</li>
+</ul>`},
+{t:"Green solutions compared (Table 3)", h:`
+<div class="tw"><table>
+<tr><th>Study</th><th>Where</th><th>Solution</th><th>Effect</th></tr>
+<tr><td>Koranteng</td><td>Kumasi / Aw</td><td>Green roofs (EnergyPlus)</td><td>−1.5 °C indoor. Bigger LAI + deeper soil helps</td></tr>
+<tr><td>Pragati</td><td>Chennai / As</td><td>Green roofs + walls</td><td>−10.5% energy; −13% cooling demand</td></tr>
+<tr class="hl"><td>Rupasinghe &amp; Halwatura</td><td>Moratuwa / Af</td><td>Vertical greening</td><td><b>−10.16 °C surface</b>, −2.11 °C indoor</td></tr>
+<tr><td>Ruiz-Valero</td><td>Santo Domingo / Aw</td><td>Living wall</td><td>−5.3 °C air</td></tr>
+<tr><td>Richards</td><td>Singapore / Af</td><td>Trees, shrubs</td><td><b>Secondary forest</b> cools air best</td></tr>
+<tr class="hl"><td>Tan</td><td>Singapore / Af</td><td>Turf, shrubs, climbers (rooftop)</td><td><b>−11 °C</b> vs artificial materials. <b>Shade</b> is key</td></tr>
+<tr class="hl"><td>Li</td><td>Dhaka, Kolkata, Bangkok</td><td>Urban green space (MODIS)</td><td>−4.83 to −8.07 °C. <b>Optimal park size 0.37–0.77 ha</b></td></tr>
+<tr><td>Harun</td><td>Kuala Lumpur / Af</td><td>Vegetation + water</td><td>−6 °C night, −4 °C day. Combined is best at night</td></tr>
+<tr><td>Silveira; Irvine</td><td>Rio; Bangkok</td><td>Gardens; Agrihood</td><td>Not quantified</td></tr>
+</table></div>
+<p>Some green solutions cut <b>surface</b> temperature by <b>more than 10 °C</b>, especially when vegetation is dense, well placed and well maintained. Results vary with plant traits and microclimate.</p>`},
+{t:"Green in the drier tropics", h:`
+<p>In <b>Aw and As</b> climates, long <b>dry seasons</b> mean plants may not survive without <b>irrigation</b>.</p>
+<ul>
+<li><b>Vertical greenery systems</b> struggle in extreme tropical weather (Senalankadhikara; Acero).</li>
+<li>Success needs careful <b>material choice</b>, interdisciplinary <b>maintenance</b>, and ongoing technical adaptation.</li>
+</ul>
+<div class="key">In dry tropics, <b>blue</b> and <b>gray</b> solutions may be needed alongside green ones.</div>`},
+{t:"Blue: water-based solutions", h:`
+<p><b>How water cools:</b> evaporation converts <b>sensible heat into latent heat</b>. Energy goes into turning water into vapour instead of raising the temperature.</p>
+<ul>
+<li><b>Le Phuc et al., Hue:</b> urban <b>lakes</b> act as <b>cooling islands</b>.</li>
+<li><b>Kemarau &amp; Eboy:</b> <b>wetlands</b> lower land surface temperature.</li>
+</ul>
+<h3>Green vs blue: Morris et al., Putrajaya "garden city"</h3>
+<ul>
+<li><b>Vegetation cooled more</b> than water bodies.</li>
+<li>Water bodies caused <b>local warming</b> at certain times: <b>mornings and evenings</b>.</li>
+<li>In already-humid tropical air, water's effect is nuanced.</li>
+</ul>
+<div class="tip">Water stores heat in the day and releases it later, and it adds humidity. So "blue" isn't always cool in the humid tropics.</div>`},
+{t:"Gray: the principles", h:`
+<p><b>Material-based</b> strategies aim at three things:</p>
+<ol>
+<li><b>Increase solar reflectance / albedo</b>: reflect sunlight.</li>
+<li><b>Reduce thermal accumulation</b>: store less heat.</li>
+<li><b>Enhance surface water evaporation</b>.</li>
+</ol>
+<p>They do this through "<b>cool</b>" or "<b>heat-reflective</b>" materials on <b>pavements, rooftops and façades</b>.</p>
+<p><b>Why they matter in the tropics:</b> constant strong sun, high temperatures and humidity all year. So <b>passive cooling</b> (no energy needed) is essential.</p>
+<p><b>Tropical requirement:</b> materials must be <b>durable</b> under intense sun, heavy rain and moisture.</p>`},
+{t:"Gray: coatings, walls and pavements", h:`
+<div class="tw"><table>
+<tr><th>Study</th><th>Where</th><th>Solution</th><th>Effect</th></tr>
+<tr><td>Anting et al.</td><td>Johor Bahru, Malaysia</td><td>Cool pavement from <b>waste tile aggregates</b></td><td>−6.4 °C (FBP tiles), −4.3 °C (PG)</td></tr>
+<tr><td>Joseph et al.</td><td>Kuala Lumpur</td><td><b>Barium sulfate</b> and <b>calcium carbonate</b> paints</td><td><b>Subambient</b> cooling: the surface gets cooler than the air</td></tr>
+<tr class="hl"><td>Malet-Damour et al.</td><td>(rooftops)</td><td><b>Nano-structured ceramic</b> coating</td><td>Surface <b>&gt;50 °C cooler</b>; heat flux cut by <b>&gt;70%</b></td></tr>
+<tr><td>Donthu et al.</td><td>Singapore</td><td>Cool surfaces on a full-scale street canyon</td><td>−2 °C air, −1.5 °C UTCI</td></tr>
+<tr><td>Wonorahardjo et al.</td><td>Bandung, Indonesia</td><td>Wall materials compared</td><td><b>Insulated sandwich walls</b> beat massive walls</td></tr>
+<tr><td>Mintorogo &amp; Ahmad</td><td>Surabaya</td><td><b>Pakis-Stem Blocks</b> roofing</td><td>Passive cooling via <b>convective airflow</b> + eco-materials</td></tr>
+<tr class="hl"><td>Senevirathne et al.</td><td>Moratuwa, Sri Lanka</td><td><b>27 pavement setups</b>, coloured and textured pavers</td><td><b>Gray/red</b> pavers 4.2–4.5 °C cooler than <b>black</b>. Smoother textures kept less heat. Red jagged pavers had the lowest temperature, <b>42.9 °C</b></td></tr>
+</table></div>`},
+{t:"Cutting anthropogenic heat", h:`
+<p>Gray solutions <b>passively</b> block heat. The other approach is to cut waste heat at its <b>source</b>.</p>
+<p><b>Main sources:</b></p>
+<ul><li>building cooling (AC)</li><li>industry</li><li>especially <b>road transport</b></li></ul>
+<p><b>Cars with AC create a dual burden:</b></p>
+<ol>
+<li>Waste heat goes straight into the street.</li>
+<li>Electricity demand rises on the grid.</li>
+</ol>
+<ul>
+<li><b>Singh et al., Singapore:</b> <b>road transport</b> and <b>power generation</b> significantly add to UHI.</li>
+<li><b>Electric vehicles</b> release less waste heat, especially with clean electricity.</li>
+<li><b>Mussetti et al., Singapore:</b> widespread EV adoption could <b>moderately</b> reduce temperatures, especially in <b>dense traffic corridors</b>.</li>
+</ul>
+<div class="key">EVs give a dual benefit: fewer greenhouse gases <b>and</b> less local heat. Cutting AH is an important but often overlooked part of UHI mitigation.</div>`},
+{t:"Quiz: Solutions", q:[
+["How many reviewed papers tested UHI mitigation solutions?", ["7","19","43","156"], 2, "43, mostly at the microscale."],
+["Nature-Based Solutions (NBS) refers to…", ["Gray + blue","Green + blue","Green + gray","Only trees"], 1, "Green and blue together."],
+["Why does vegetation cooling drop during extreme heat or drought?", ["Leaves turn white","Plants close their stomata, reducing transpiration","Roots heat the soil","Rain stops"], 1, "Stomatal closure saves water but cuts evaporative cooling."],
+["Blue solutions cool mainly by…", ["Reflecting sunlight","Converting sensible heat to latent heat through evaporation","Blocking wind","Storing cold at night"], 1, "Evaporation uses energy that would otherwise raise temperature."],
+["Morris et al. (Putrajaya garden city) found that…", ["Water bodies cooled more than vegetation","Vegetation cooled more, and water caused local warming in mornings and evenings","Both had no effect","Water cooled only at noon"], 1, "Water's effect is nuanced in humid tropics."],
+["The nano-structured ceramic roof coating (Malet-Damour et al.) gave…", ["2 °C surface reduction","Over 50 °C surface reduction and over 70% heat-flux attenuation","Subambient air","No effect"], 1, ">50 °C cooler surface, >70% less heat flux."],
+["Senevirathne's pavement study found…", ["Black pavers were coolest","Gray/red pavers were 4.2–4.5 °C cooler than black","Texture didn't matter","All colours were equal"], 1, "Also: smoother textures kept less heat; red jagged reached the lowest temperature, 42.9 °C."],
+["Li et al. found the optimal park size for cooling in Dhaka, Kolkata and Bangkok was about…", ["0.01–0.05 ha","0.37–0.77 ha","5–10 ha","Over 50 ha"], 1, "0.37–0.77 ha; shape and NDVI also matter."],
+["Air-conditioned private cars create a 'dual burden' because…", ["They are expensive and slow","They release waste heat into streets and raise grid electricity demand","They pollute and make noise","They need roads and parking"], 1, "Both add heat to the city."],
+["In drier tropical climates (Aw, As), green solutions…", ["Work better than anywhere","Face survival problems without irrigation, so blue and gray solutions may be needed too","Are banned","Need no maintenance"], 1, "Long dry seasons limit plant survival."],
+["Which paints gave subambient cooling in Kuala Lumpur?", ["Lead and zinc","Barium sulfate and calcium carbonate","Titanium and iron","Copper and silver"], 1, "Joseph et al."]
+]}
+]},
+
+/* ───────────────────────── 9. GAPS & FUTURE ───────────────────────── */
+{t:"Gaps and the future", c:[
+{t:"Gap 1: understudied cities", h:`
+<p>Research is skewed toward <b>well-instrumented, affluent</b> cities in <b>Af</b> climates: Singapore and Kuala Lumpur. That limits how well the findings generalise.</p>
+<p><b>Under-represented:</b></p>
+<ul>
+<li><b>Small and mid-sized</b> cities</li>
+<li>Cities in <b>Aw</b> (savannah) and <b>Am</b> (monsoon) climates</li>
+<li>West Africa, parts of India, coastal Latin America</li>
+<li>Small island states</li>
+</ul>
+<p>This matters even though <b>Aw is the most widespread</b> tropical climate by land area.</p>
+<div class="key">Expanding to Aw and Am regions is a matter of <b>spatial equity</b> and of <b>scientific accuracy</b>.</div>`},
+{t:"Af vs Aw vs Am: they behave differently", h:`
+<div class="tw"><table>
+<tr><th>Climate</th><th>UHI behaviour</th></tr>
+<tr><td><b>Aw</b> (savannah)</td><td>Intense <b>dry seasons</b> bring strong <b>daytime surface heating</b> and pronounced <b>night-time UHI peaks</b>. Worst in <b>low-rise, sprawling</b> cities with little vegetation.</td></tr>
+<tr><td><b>Af</b> (rainforest)</td><td>A more <b>stable</b> daily temperature range. Heat stress is amplified by <b>constant high humidity</b> and <b>weak night ventilation</b> (low wind, dense buildings).</td></tr>
+<tr><td><b>Am</b> (monsoon)</td><td>In between. Monsoon rain <b>reduces</b> UHI in wet months. UHI <b>intensifies</b> in dry periods, when evapotranspiration is suppressed.</td></tr>
+</table></div>
+<p>Lumping all tropical cities together risks mitigation that is <b>ineffective or even counterproductive</b>.</p>`},
+{t:"Gap 2: tailor field methods to the climate", h:`
+<ul>
+<li><b>Af cities:</b> humidity rarely drops <b>below 70%</b>, and vegetation persists all year.
+<ul>
+<li>Surface temperatures alone <b>underestimate</b> human heat exposure.</li>
+<li>So use radiation- and humidity-sensitive indices such as <b>UTCI</b> or <b>PET</b>.</li>
+</ul></li>
+<li><b>Aw cities:</b> surfaces <b>dry rapidly</b> in the dry season, so the ground stores more heat and urban–rural contrasts are stronger.
+<ul>
+<li>Fixed stations capture strong daily and seasonal swings.</li>
+<li>But they may <b>miss micro-variation</b> in <b>informal settlements</b>.</li>
+</ul></li>
+<li><b>Am cities</b> (coastal India, SE Asia): must account for <b>shifting winds</b> and <b>seasonal albedo changes</b> from monsoon rain. Very few studies do.</li>
+</ul>
+<div class="key">Combine <b>fixed + mobile</b> measurements, deployed across Af, Am, As and Aw, for both time depth and spatial detail.</div>`},
+{t:"Gap 3: measure more than air temperature", h:`
+<ul>
+<li>Most studies focus on <b>air temperature</b> only. They neglect humidity, wind, radiation and MRT.</li>
+<li>With tropical humidity and sun, temperature alone <b>fails</b> to show the full heat stress.</li>
+<li>Note the <b>timing mismatch</b>:
+<ul>
+<li>UHI is often strongest at <b>night</b>.</li>
+<li><b>Outdoor discomfort</b> peaks during the <b>day</b>, with high temperatures and strong sun.</li>
+</ul></li>
+<li>Studies rarely measure all key parameters <b>at the same time</b>.</li>
+</ul>
+<p><b>Recommendation:</b> a <b>holistic</b> approach using MRT, PET, UTCI, or <b>OTCA (Outdoor Thermal Comfort Autonomy)</b>, which supports climate-responsive design evaluation. This has worked in <b>Singapore</b> high-rise settings.</p>`},
+{t:"Cheaper, wider data", h:`
+<ul>
+<li><b>Low-cost sensor networks</b> can overcome money limits, but they are <b>underused</b> in the tropics.</li>
+<li><b>Standardise methods</b> so that data from different regions can be compared.</li>
+<li><b>Wearable</b> and <b>low-cost</b> tech, such as miniaturised loggers and personal microclimate trackers:
+<ul>
+<li>They suit under-represented areas like <b>tropical Africa</b> and <b>small islands</b>.</li>
+<li>They measure <b>individual exposure</b>.</li>
+<li>They support <b>mobile transects</b> with real-time, high-frequency data.</li>
+<li>They need little infrastructure.</li>
+</ul></li>
+<li><b>Citizen science</b> or community monitoring can <b>democratise</b> data collection and boost public engagement.</li>
+</ul>`},
+{t:"The AC paradox", h:`
+<p><b>Air conditioning</b> is the dominant way tropical cities cool buildings. But AC <b>dumps waste heat outside</b>, which makes the UHI worse. People then need even more AC.</p>
+<div class="eq">hotter city → more AC → more waste heat → hotter city</div>
+<p>This is a <b>self-reinforcing feedback loop</b>.</p>
+<ul>
+<li>Few reviewed studies explicitly measured AH contributions.</li>
+<li>Reliance on AC and motor transport is growing, so AH needs measuring across many settings.</li>
+<li>AH should be <b>built into UHI models</b>.</li>
+</ul>`},
+{t:"Gap 4: models need tropical calibration", h:`
+<ul>
+<li>Most tools, such as <b>Envi-met</b>, were calibrated for <b>temperate</b> climates and miss tropical heat and moisture dynamics.
+<ul>
+<li><b>Af:</b> high humidity and constant evapotranspiration are <b>under-represented</b>.</li>
+<li><b>Aw / Am:</b> models struggle with the <b>seasonality</b> of surface heat fluxes and <b>soil moisture</b>.</li>
+</ul></li>
+<li>Tropical models such as <b>t-TEB</b> exist but are <b>rarely used</b>, usually in a single city.</li>
+<li><b>Large-scale experimental validation</b> in the tropics is lacking, especially under extreme sun, convection and AH.</li>
+<li><b>Recommendation:</b> calibrate systematically against field data, <b>for each subtype</b> (Af, Aw, Am).</li>
+</ul>
+<h3>AI and hybrid models</h3>
+<ul>
+<li>AI and ML models are also mostly adapted to <b>temperate</b> climates. They struggle with <b>reduced night cooling due to low wind</b>.</li>
+<li>They should be trained on <b>tropical datasets</b>.</li>
+<li><b>Hybrid</b> AI + numerical models are promising, but they need <b>high-quality, standardised data</b>.</li>
+<li><b>Southeast Asia:</b> UHI could raise urban temperatures by up to <b>4 °C by 2050</b>.</li>
+</ul>`},
+{t:"Gap 5: the scale problem", h:`
+<p>Most studies are <b>broad-scale</b>: city-wide or regional, using satellites or a few urban–rural stations. These miss the large <b>micro-variation</b> inside tropical cities.</p>
+<h3>Satellite limits</h3>
+<ul>
+<li>Satellites capture short-term <b>daily (diurnal) changes</b> poorly, yet clouds and heat shift fast in the tropics.</li>
+<li>Satellite <b>surface</b> temperature ≠ what a <b>pedestrian</b> feels, especially in informal settlements or green zones.</li>
+</ul>
+<h3>Fix: multi-scale</h3>
+<p>Combine:</p>
+<ul>
+<li>remote sensing</li>
+<li>fine-resolution in situ air temperature</li>
+<li>CFD and microclimate models</li>
+</ul>
+<p>This matters because <b>local</b> effects are big in the tropics: evapotranspiration, AH, low wind.</p>
+<p>Neighbourhood studies are <b>very limited</b>. For example, only <b>7</b> used mobile measurements.</p>`},
+{t:"Africa, informal settlements and early warning", h:`
+<ul>
+<li><b>African Aw cities:</b> fast, unplanned growth, but research is mostly <b>coarse remote sensing</b>.</li>
+<li>There is little detail on <b>dense, informal or peripheral</b> neighbourhoods, which are the <b>most heat-vulnerable</b>.</li>
+<li>That blocks <b>equitable</b> cooling strategies.</li>
+<li>The paper suggests filling this with mobile transects, sensor networks, CFD and <b>participatory sensing</b>.</li>
+</ul>
+<h3>More recommendations</h3>
+<ul>
+<li>Add <b>socio-economic variables</b> and local morphology to analyses.</li>
+<li>Use high-res satellites, ML and <b>urban digital twins</b> (virtual copies of cities) to find vulnerable zones.</li>
+<li>Prioritise <b>fine-scale Early Warning Systems (EWS)</b>.
+<ul>
+<li>Most studies look at long-term patterns. Few do <b>short-term forecasting</b>.</li>
+<li>Neighbourhood-scale EWS with thermal and health data would let authorities send <b>timely alerts</b> and deploy cooling.</li>
+<li>Especially for informal settlements and areas with low green cover.</li>
+</ul></li>
+</ul>`},
+{t:"The three approaches complement each other", h:`
+<div class="tw"><table>
+<tr><th>Approach</th><th>Strength</th><th>Weakness</th></tr>
+<tr><td><b>Ground stations</b> (fixed + mobile)</td><td>High <b>time</b> detail; direct air temperature and comfort</td><td>Few points</td></tr>
+<tr><td><b>Remote sensing</b></td><td>Broad <b>spatial</b> coverage; long-term LST and land cover</td><td>Doesn't capture <b>human thermal perception</b></td></tr>
+<tr><td><b>Numerical models</b></td><td>The <b>bridge</b>: simulate processes, test mitigation scenarios</td><td>Cross-scale mismatches</td></tr>
+</table></div>
+<p><b>How they connect:</b></p>
+<ul>
+<li>LST data can feed urban canopy models.</li>
+<li>In situ air temperature is needed to <b>validate</b> models.</li>
+</ul>
+<p><b>Cross-scale limits:</b></p>
+<ul>
+<li><b>Mesoscale</b> models miss fine morphology and vertical layering.</li>
+<li><b>Microscale</b> models lack accurate starting conditions and local parameters.</li>
+</ul>
+<div class="key">Integrate <b>field + satellite + models</b>. Combined, they are a powerful, complementary toolkit.</div>`},
+{t:"Conclusion", h:`
+<ul>
+<li><b>Solar radiation and humidity</b> shape tropical urban climate, not just urbanisation.</li>
+<li>Some studies now combine <b>UHI + outdoor thermal comfort</b>. This should spread to all studies.</li>
+<li><b>Future research should:</b>
+<ul>
+<li>do <b>multi-parameter</b> analyses</li>
+<li>refine models to capture <b>AC</b> waste heat, <b>limited night cooling</b>, <b>evapotranspiration under high humidity</b>, and <b>convective rainfall</b></li>
+</ul></li>
+<li><b>Don't lump</b> Af, Am and Aw together. Each has its own rainfall, cloud and evapotranspiration pattern.</li>
+<li>Temperate models and solutions may not transfer, because <b>solar angles, vegetation responses and building ventilation</b> differ.</li>
+<li>Study <b>small and mid-sized cities</b>, especially in <b>Aw</b>.</li>
+<li><b>Bridge</b> large-scale remote sensing with local interventions using multi-scale methods.</li>
+<li>Get <b>researchers, urban planners and policymakers</b> to collaborate.</li>
+</ul>
+<div class="key">The goal: tropical cities, growing fast and highly vulnerable, must stay <b>liveable</b> as temperatures rise.</div>`},
+{t:"Quiz: Gaps and the future", q:[
+["Which tropical cities are most over-represented in UHI research?", ["Small Aw cities in Africa","Affluent, well-instrumented Af cities like Singapore and Kuala Lumpur","Small island states","Am coastal cities"], 1, "Af hubs dominate; Aw, Am and smaller cities are under-represented."],
+["In which climate does monsoon rain reduce UHI in wet months but intensify it in dry periods?", ["Af","Aw","Am","As"], 2, "Am sits between Af and Aw."],
+["Why do surface temperatures alone underestimate heat exposure in Af cities?", ["Humidity rarely drops below 70%, so radiation- and humidity-sensitive indices like UTCI/PET are needed","Satellites can't see Af cities","Af cities are cold","There is no sun"], 0, "High humidity shapes how heat is felt."],
+["What is the 'AC paradox'?", ["AC is too expensive","AC cools indoors but dumps waste heat outside, worsening UHI and creating a feedback loop","AC doesn't work in humidity","AC only works at night"], 1, "A self-reinforcing loop."],
+["UHI could raise urban temperatures in Southeast Asia by up to how much by 2050?", ["1 °C","2 °C","4 °C","10 °C"], 2, "Up to 4 °C."],
+["Which index do the authors recommend alongside MRT, PET and UTCI?", ["NDVI","OTCA (Outdoor Thermal Comfort Autonomy)","GDP","LST"], 1, "OTCA supports climate-responsive design evaluation."],
+["A key weakness of satellite surface temperature is that it…", ["Is too detailed","Doesn't match what pedestrians feel, and misses short-term daily changes","Is always wrong","Only works at night"], 1, "LST ≠ human exposure; poor at diurnal variability."],
+["The authors want fine-scale Early Warning Systems mainly to…", ["Predict rainfall","Issue timely alerts and deploy cooling for vulnerable people, e.g. in informal settlements","Replace satellites","Measure GDP"], 1, "Short-term forecasting is under-studied."],
+["Which role do numerical models play among the three approaches?", ["They replace field data","They are a bridge: simulating processes and testing mitigation, using LST inputs and in situ validation","They only make maps","They measure humidity"], 1, "Models link ground and satellite data."],
+["Why might temperate UHI tools and solutions not transfer to the tropics?", ["Different languages","Solar angles, vegetation responses and building ventilation practices differ","Tropical cities have no buildings","They are too cheap"], 1, "Stated in the conclusion."]
+]}
+]},
+
+/* ───────────────────────── 10. CHEATSHEET ───────────────────────── */
+{t:"Cheatsheet", c:[
+{t:"Cheatsheet 1: the big picture", h:`
+<div class="tw"><table>
+<tr><th>Item</th><th>Key fact</th></tr>
+<tr><td>Paper</td><td>Lefevre, Malet-Damour, Boyer, Rivière (2025). PIMENT Lab, Univ. of Reunion Island. <i>City and Environment Interactions</i> 28</td></tr>
+<tr><td>Type</td><td>Systematic review (PRISMA) of tropical UHI studies</td></tr>
+<tr><td>Question</td><td>How is UHI specifically addressed in tropical regions?</td></tr>
+<tr><td>UHI</td><td>Positive temperature difference, urban − rural</td></tr>
+<tr><td>History</td><td>Howard 1833 London (2 °C); Schmidt 1927 Vienna (first car transect)</td></tr>
+<tr><td>Oke's causes</td><td>Morphology (less ventilation); mineral surfaces replace vegetation; anthropogenic heat</td></tr>
+<tr><td>Tropical</td><td>Köppen A; every month &gt;18 °C; ~19% of land (3rd largest); 23.5° N–S</td></tr>
+<tr><td>Subtypes</td><td>Af rainforest (&gt;60 mm every month); Am monsoon; Aw savannah (most widespread, ~11.5% of land); As dry summer</td></tr>
+<tr><td>Tropical vs temperate</td><td>Temperate: night peak, can be negative by day. Tropical: lasts all day, daytime peaks in the wet season</td></tr>
+<tr><td>Growth</td><td>Organic, unregulated sprawl. IPCC: &gt;90% of population growth in low latitudes</td></tr>
+<tr><td>Four UHI types</td><td>SUHI (satellite LST, most common); atmospheric/canopy (in situ air); UBL-UHI (vertical); SSUHI (underground)</td></tr>
+</table></div>`},
+{t:"Cheatsheet 2: numbers to memorise", h:`
+<div class="tw"><table>
+<tr><th>Number</th><th>Meaning</th></tr>
+<tr><td><b>508 → 156</b></td><td>Documents found → included (352 excluded). Dimensions.ai, up to July 2024</td></tr>
+<tr><td><b>69 / 68 / 58 / 43</b></td><td>Experimental / modelling / remote sensing / solutions studies</td></tr>
+<tr><td><b>37 / 21 / 19 / 14 / 11</b></td><td>Studies: Singapore / India / Malaysia / Brazil / Nigeria</td></tr>
+<tr><td><b>44.9 / 34 / 11.5 / 6.4 / 3.2 %</b></td><td>Studies by climate: Af / Aw / Am / multiple / As (As = Chennai only)</td></tr>
+<tr><td><b>2020–2022</b></td><td>Publication peak (rise after 2015)</td></tr>
+<tr><td><b>7</b></td><td>Mobile transect studies</td></tr>
+<tr><td><b>57 / 24 / 22 / 13 / 6 / 4</b></td><td>Parameters: Tair / RH / Tsurf / Vair / MRT / Gi</td></tr>
+<tr><td><b>19</b></td><td>Studies combining UHI with outdoor thermal comfort</td></tr>
+<tr><td><b>7</b></td><td>Studies using UTCI</td></tr>
+<tr><td><b>20 (18 in fig) / 14 / 4</b></td><td>WRF / Envi-met / machine-learning studies</td></tr>
+<tr><td><b>6 vs 3.5 °C</b></td><td>Tropical vs temperate UHI (Amorim &amp; Dubreuil)</td></tr>
+<tr><td><b>~7 °C</b></td><td>Singapore commercial zone, monsoon, 3–4 h after sunset (Chow &amp; Roth)</td></tr>
+<tr><td><b>2–4 °C, up to 7 °C</b></td><td>Aw night UHI in the dry season</td></tr>
+<tr><td><b>+3.2 °C</b></td><td>Jakarta, after 50% green loss (2000–2012)</td></tr>
+<tr><td><b>2.2 → 1.9 °C</b></td><td>Kampala SUHI fell despite doubling urban land</td></tr>
+<tr><td><b>87–95%</b></td><td>Darwin: share of AH from buildings</td></tr>
+<tr><td><b>4.3×</b></td><td>Kolkata urban residents' exposure to Heat Index &gt;45 °C</td></tr>
+<tr><td><b>30–70% / 10–20%</b></td><td>UHI-driven cooling energy rise, residential / commercial (Duran, UWG + TRNSYS)</td></tr>
+<tr><td><b>2–3 °C</b></td><td>Envi-met under-prediction vs STEVE</td></tr>
+<tr><td><b>50 m</b></td><td>STEVE radius</td></tr>
+<tr><td><b>GAR 25% → 2.7 °C</b></td><td>Nagpur LCZ 9 daytime cooling</td></tr>
+<tr><td><b>15.7 °C</b></td><td>MRT cut by avoiding E–W courtyards (Cuba), aspect ratio 1–3</td></tr>
+<tr><td><b>0.37–0.77 ha</b></td><td>Optimal park size (Dhaka, Kolkata, Bangkok)</td></tr>
+<tr><td><b>&gt;50 °C, &gt;70%</b></td><td>Nano-ceramic roof coating: surface cut, heat-flux cut</td></tr>
+<tr><td><b>4.2–4.5 °C</b></td><td>Gray/red pavers cooler than black</td></tr>
+<tr><td><b>4 °C by 2050</b></td><td>Projected UHI warming, Southeast Asia</td></tr>
+</table></div>`},
+{t:"Cheatsheet 3: methods and tools", h:`
+<div class="tw"><table>
+<tr><th>Method</th><th>Plus</th><th>Minus</th></tr>
+<tr><td><b>Mobile transect</b></td><td>Fine spatial detail, cheap, flexible</td><td>Snapshots only; night bias; often intra-urban, not true UHI</td></tr>
+<tr><td><b>Fixed stations</b></td><td>Continuous, long-term, seasonal; test mitigation</td><td>Costly; few points</td></tr>
+<tr><td><b>Landsat</b></td><td>High resolution</td><td>16-day revisit; clouds</td></tr>
+<tr><td><b>MODIS</b></td><td>Daily; regional and seasonal</td><td>~1 km, coarse</td></tr>
+</table></div>
+<div class="tw"><table>
+<tr><th>Tool</th><th>Remember it as</th></tr>
+<tr><td><b>WRF</b></td><td>NCAR; city/mesoscale; #1 tool; UCMs SLUCM / BEP (MLUCM) / BEP+BEM; Noah LSM</td></tr>
+<tr><td><b>UWG</b></td><td>Duran, Ecuador; informal settlements; cooling energy +30–70%</td></tr>
+<tr><td><b>ADMS-Urban</b></td><td>Kuala Lumpur; comfort + energy by land use; humidity and pollution</td></tr>
+<tr><td><b>t-TEB</b></td><td>Karam; tropical TEB; free convection + drainage; Rio 2007</td></tr>
+<tr><td><b>Envi-met</b></td><td>Bruse &amp; Fleer; 3-D CFD; Navier–Stokes; #1 CFD tool (14); temperate-built</td></tr>
+<tr><td><b>STEVE</b></td><td>Empirical, Singapore data; 50 m; more realistic than Envi-met</td></tr>
+<tr><td><b>Fluent / OpenFOAM / CRADLE</b></td><td>Porosity and AH removal / vegetation raises humidity / office ventilation</td></tr>
+<tr><td><b>Rayman</b></td><td>MRT and PET; courtyards; Sky View Factor</td></tr>
+<tr><td><b>DART</b></td><td>3-D radiation; leaf area density (Singapore)</td></tr>
+<tr><td><b>EnergyPlus</b></td><td>Building energy; cool roofs beat green roofs in Singapore</td></tr>
+<tr><td><b>Regression</b></td><td>Cheap, adaptable; 2nd most used</td></tr>
+<tr><td><b>ML (4 studies)</b></td><td>Random Forest (Nagpur); GWR + DNN (HK, Singapore); Genetic Algorithm (Sanya); RS + ML (Colombia)</td></tr>
+</table></div>
+<p><b>Comfort indices:</b> PET (Höppe), UTCI (Jendritzky), SET, THI, Humidex, TDI (Thom). MRT feeds PET.</p>`},
+{t:"Cheatsheet 4: solutions and gaps", h:`
+<div class="tw"><table>
+<tr><th>Family</th><th>Mechanism</th><th>Watch out</th></tr>
+<tr><td><b>Green</b></td><td>Shade + evapotranspiration; year-round in Af; cheap to maintain</td><td>Stomata close in heat/drought; dense canopies trap night heat and add humidity; standalone trees weak; dry Aw/As need irrigation</td></tr>
+<tr><td><b>Blue</b></td><td>Evaporation: sensible → latent heat</td><td>Can warm locally in mornings/evenings (Putrajaya); vegetation cooled more</td></tr>
+<tr><td><b>Gray</b></td><td>High albedo, less heat storage, more evaporation</td><td>Must survive sun, rain and moisture</td></tr>
+<tr><td><b>Cut AH</b></td><td>Public transport, EVs, insulation, smarter AC</td><td>Often overlooked; the AC feedback loop</td></tr>
+</table></div>
+<p>Green + Blue = <b>Nature-Based Solutions</b>.</p>
+<h3>Research gaps and recommendations</h3>
+<ol>
+<li>Study <b>Aw / Am</b>, <b>small and mid-sized</b> cities, <b>Africa</b>, islands. Don't lump subtypes together.</li>
+<li><b>Tailor</b> field methods to each subtype. Combine <b>fixed + mobile</b>.</li>
+<li><b>Holistic, multi-parameter</b> measurement (MRT, PET, UTCI, OTCA). Remember: <b>day</b> discomfort vs <b>night</b> UHI.</li>
+<li><b>Low-cost and wearable</b> sensors, standard methods, citizen science.</li>
+<li>Quantify <b>anthropogenic heat</b>, especially <b>AC</b>.</li>
+<li><b>Calibrate models</b> per subtype; train AI on tropical data; hybrid models need good data.</li>
+<li><b>Multi-scale:</b> combine satellite + in situ + CFD. More <b>neighbourhood</b> studies, especially in <b>informal settlements</b>.</li>
+<li>Add <b>socio-economic</b> variables, <b>digital twins</b>, fine-scale <b>Early Warning Systems</b>.</li>
+<li><b>Interdisciplinary</b> collaboration: researchers, planners, policymakers.</li>
+</ol>`},
+{t:"Cheatsheet 5: likely traps", h:`
+<ul>
+<li><b>11.5% twice:</b> Am = 11.5% of studies; Aw = ~11.5% of global land.</li>
+<li><b>Af dominates studies</b> (because of Singapore). <b>Aw dominates land</b>.</li>
+<li><b>Period:</b> the abstract says 2000–2024, but the search covered "all periods up to July 2024", and Fig 5 starts in 1987.</li>
+<li><b>WRF count:</b> 20 in the text vs 18 in Fig 8.</li>
+<li><b>SUHI ≠ canopy UHI:</b> satellite surface vs ground-level air.</li>
+<li><b>Seasonality is mixed:</b>
+<ul>
+<li>Night UHI is often strongest in the <b>dry</b> season (Lagos, Akure; Aw).</li>
+<li>Some <b>surface</b> UHIs peak in the <b>rainy</b> season (Presidente Prudente SUHI, humid Chinese cities).</li>
+<li>Singapore (Af) peaks with the <b>monsoon</b>.</li>
+</ul></li>
+<li><b>Vegetation vs cool roofs:</b>
+<ul>
+<li>Chatterjee: vegetation beats cool roofs in the tropics.</li>
+<li>Yang (EnergyPlus, Singapore): cool roofs beat green roofs (no added moisture).</li>
+<li>Kotharkar: cool roofs work better at <b>high</b> density.</li>
+</ul></li>
+<li><b>Greening can backfire:</b> Setiawati (+3.1 °C UTCI in Medan/Denpasar); OpenFOAM (more humidity, less wind); dense canopies at night.</li>
+<li><b>Water can backfire:</b> Putrajaya water bodies warmed mornings and evenings.</li>
+<li><b>Envi-met</b> is the most popular CFD tool but temperate-built: it under-predicts by 2–3 °C vs STEVE.</li>
+<li><b>Standalone trees</b> have minimal effect. <b>Spread-out street trees</b> beat one big green area (Nagpur). Optimal park size is 0.37–0.77 ha.</li>
+<li><b>Kampala:</b> urban land doubled, yet SUHI fell (green spaces).</li>
+</ul>`}
+]},
+
+/* ───────────────────────── 11. FINAL QUIZ ───────────────────────── */
+{t:"Final mixed quiz", c:[
+{t:"Final quiz", q:[
+["The review included how many studies?", ["508","352","156","69"], 2, "508 identified, 156 included."],
+["Which statement about Aw climates is correct?", ["They have the most UHI studies","They are the most widespread tropical subtype by land area but under-studied","They have rain every month","They occur only in Singapore"], 1, "Aw covers about 11.5% of land; it has about a third of studies."],
+["Which pair is correctly matched?", ["Landsat: daily, 1 km","MODIS: 16-day revisit, high resolution","Landsat: high resolution, 16-day revisit","MODIS: underground temperature"], 2, "Landsat is sharp but infrequent; MODIS is coarse but daily."],
+["Which measurement approach provides long-term records and can track mitigation effectiveness over time?", ["Mobile transects","Fixed meteorological stations","Single satellite images","Wearables only"], 1, "Fixed stations give continuous records over years."],
+["'Sensible to latent heat' conversion describes which solution family?", ["Gray","Blue","Anthropogenic heat reduction","Morphology"], 1, "Blue solutions cool by evaporation."],
+["What does PET need as an input that is often missing in studies?", ["GDP","Mean Radiant Temperature","NDVI","Population"], 1, "MRT is crucial for PET and is underused."],
+["Which city has by far the most tropical UHI studies, skewing results toward Af?", ["Kolkata","Lagos","Singapore","Bangkok"], 2, "Singapore, with 37 studies."],
+["In Duran (Ecuador), the key UHI drivers were…", ["Parks","Informal settlements with high anthropogenic heat","Lakes","Mountains"], 1, "UWG simulations with clustering and sensitivity analysis."],
+["Which explains why greening increased UTCI in Medan and Denpasar?", ["Greening always cools","The relationship between climate, urban form and green infrastructure is complex; vegetation can add humidity or block ventilation","Satellites made errors","Trees were dead"], 1, "Context matters."],
+["Which recommendation is NOT made by the authors?", ["Calibrate models per tropical subtype","Use low-cost and wearable sensors","Rely only on satellite surface temperature for human exposure","Develop fine-scale early warning systems"], 2, "They warn that LST doesn't match pedestrian exposure."],
+["Which approach is described as the 'bridge' between observations?", ["Remote sensing","Numerical modelling","Citizen science","Fixed stations"], 1, "Models link field and satellite data and test scenarios."],
+["Tropical UHI can be strongest during the day in the wet season mainly because of…", ["Snow","High solar irradiance, high atmospheric moisture and material properties","Low population","Ocean currents only"], 1, "Stated in the introduction."],
+["Which tool would you pick to calculate MRT for a courtyard design?", ["WRF","Rayman","MODIS","UWG"], 1, "Rayman is the building/individual-scale radiation tool."],
+["The study of 1449 Chinese cities showed arid zones had weaker SUHI because of…", ["More vegetation","Limited evapotranspiration","More rain","More AC"], 1, "With little evapotranspiration, the urban–rural contrast is smaller."],
+["Which is a correctly stated limitation of tropical vegetation as a UHI solution?", ["Plants grow too slowly in the tropics","In extreme heat or drought, stomatal closure reduces evapotranspiration cooling","Tropical plants reflect heat","Vegetation never helps"], 1, "Plus maintenance issues in humid climates and survival issues in dry ones."]
+]}
+]}
+];
+
+// flatten
+var flat = [];
+M.forEach(function(m, mi){ m.c.forEach(function(c, ci){ flat.push({mi:mi, ci:ci}); }); });
+var cur = 0;
+try { var s = parseInt(location.hash.slice(1) || localStorage.getItem("uhi-pos"), 10); if (s >= 0 && s < flat.length) cur = s; } catch(e){}
+
+var $ = function(id){ return document.getElementById(id); };
+var nav = $("nav"), list = $("navlist"), card = $("card");
+
+// options are shuffled on every render so the answer position can't be memorised
+function quiz(q){
+  return q.map(function(x, i){
+    var order = x[1].map(function(_, j){ return j; });
+    for (var k = order.length - 1; k > 0; k--) { var r = Math.floor(Math.random() * (k + 1)), t = order[k]; order[k] = order[r]; order[r] = t; }
+    return '<div class="mcq" data-a="'+order.indexOf(x[2])+'"><p class="qq"><span>'+(i+1)+'.</span>'+x[0]+'</p><div class="opts">'+
+      order.map(function(o, j){ return '<button data-j="'+j+'">'+"ABCD"[j]+'. '+x[1][o]+'</button>'; }).join("")+
+      '</div><p class="why">'+x[3]+'</p></div>';
+  }).join("") + '<div class="score" id="score"></div>';
+}
+
+function score(){
+  var el = $("score"); if (!el) return;
+  var n = card.querySelectorAll(".mcq").length, d = card.querySelectorAll(".mcq.done").length, ok = card.querySelectorAll(".mcq.ok").length;
+  el.innerHTML = '<span>Answered <b>'+d+' / '+n+'</b> · Correct <b>'+ok+'</b></span>' + (d ? '<button id="retry">Retry</button>' : '');
+}
+
+card.addEventListener("click", function(e){
+  if (e.target.id === "retry") { go(cur); return; }
+  var b = e.target.closest(".opts button"); if (!b) return;
+  var m = b.closest(".mcq"); if (m.classList.contains("done")) return;
+  var a = +m.dataset.a, j = +b.dataset.j;
+  m.classList.add("done");
+  m.querySelectorAll(".opts button")[a].classList.add("right");
+  if (j === a) m.classList.add("ok"); else b.classList.add("wrong");
+  score();
+});
+
+function buildNav(){
+  var start = 0, html = "";
+  M.forEach(function(m, mi){
+    html += '<button data-i="'+start+'" data-m="'+mi+'"><span class="n">'+mi+'</span><span>'+m.t+'</span><span class="c">'+m.c.length+'</span></button>';
+    start += m.c.length;
+  });
+  list.innerHTML = html;
+  list.querySelectorAll("button").forEach(function(b){
+    b.onclick = function(){ go(+b.dataset.i); nav.classList.remove("open"); };
+  });
+}
+
+function go(i){
+  cur = Math.max(0, Math.min(flat.length - 1, i));
+  var f = flat[cur], m = M[f.mi], c = m.c[f.ci];
+  card.innerHTML = "<h2>" + c.t + "</h2>" + (c.h || "") + (c.q ? quiz(c.q) : "");
+  score();
+  $("mod").textContent = m.t;
+  $("count").textContent = (f.ci + 1) + " / " + m.c.length;
+  $("bar").style.width = ((cur + 1) / flat.length * 100) + "%";
+  $("prev").disabled = cur === 0;
+  $("next").disabled = cur === flat.length - 1;
+  list.querySelectorAll("button").forEach(function(b){ b.classList.toggle("on", +b.dataset.m === f.mi); });
+  try { localStorage.setItem("uhi-pos", cur); } catch(e){}
+  history.replaceState(null, "", "#" + cur);
+  window.scrollTo(0, 0);
+}
+
+$("prev").onclick = function(){ go(cur - 1); };
+$("next").onclick = function(){ go(cur + 1); };
+$("menu").onclick = function(){ nav.classList.toggle("open"); };
+document.addEventListener("keydown", function(e){
+  if (e.key === "ArrowRight") go(cur + 1);
+  if (e.key === "ArrowLeft") go(cur - 1);
+  if (e.key === "Escape") nav.classList.remove("open");
+});
+$("theme").onclick = function(){
+  var r = document.documentElement, t = r.getAttribute("data-theme");
+  var dark = t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  r.setAttribute("data-theme", dark ? "light" : "dark");
+  try { localStorage.setItem("uhi-theme", r.getAttribute("data-theme")); } catch(e){}
+};
+try { var th = localStorage.getItem("uhi-theme"); if (th) document.documentElement.setAttribute("data-theme", th); } catch(e){}
+
+buildNav();
+go(cur);
+</script>
+</body>
+</html>
